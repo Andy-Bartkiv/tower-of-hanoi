@@ -15,7 +15,7 @@
   \**********************/
 /***/ (() => {
 
-eval("console.log('Salut! Tower of Hanoi is running.')\n\n//# sourceURL=webpack://js-16-tower-of-hanoi/./src/index.js?");
+eval("console.log('Salut - 2! Tower of Hanoi is running.');\r\nconsole.log('Update attempt #1')\n\n//# sourceURL=webpack://tower-of-hanoi/./src/index.js?");
 
 /***/ })
 

@@ -1,0 +1,25 @@
+{
+  "name": "js-16-tower-of-hanoi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andy-Bartkiv/tower-of-hanoi.git"
+  },
+  "keywords": [],
+  "author": "Andy Bartkiv",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Andy-Bartkiv/tower-of-hanoi/issues"
+  },
+  "homepage": "https://github.com/Andy-Bartkiv/tower-of-hanoi#readme",
+  "devDependencies": {
+    "webpack-cli": "^4.8.0"
+  }
+}

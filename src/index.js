@@ -1,0 +1,1 @@
+console.log('Salut! Tower of Hanoi is running.')

@@ -116,7 +116,7 @@ eval("\n\n/* istanbul ignore next  */\nfunction styleTagTransform(css, styleElem
   \**********************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _styles_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./styles.css */ \"./src/styles.css\");\nconsole.log('Salut - 2! Tower of Hanoi is running.');\r\nconsole.log('Update attempt #1')\r\n\r\n;\r\n\r\nfunction component() {\r\n    const element = document.createElement('div');\r\n\r\n    // Lodash, now imported by this script\r\n    element.innerHTML = 'Hello Webpack';\r\n    element.classList.add('hello');\r\n\r\n    return element;\r\n }\r\n\r\n document.body.appendChild(component());\n\n//# sourceURL=webpack://tower-of-hanoi/./src/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _styles_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./styles.css */ \"./src/styles.css\");\nconsole.log('Tower of Hanoi is running.');\r\nconsole.log('Update attempt #1')\r\n\r\n;\r\n\r\nfunction component() {\r\n    const element = document.createElement('div');\r\n\r\n    // Lodash, now imported by this script\r\n    element.innerHTML = 'Coming soon';\r\n    element.classList.add('hello');\r\n\r\n    return element;\r\n }\r\n\r\n document.body.appendChild(component());\n\n//# sourceURL=webpack://tower-of-hanoi/./src/index.js?");
 
 /***/ })
 

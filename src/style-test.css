@@ -29,10 +29,6 @@ div {
     color: var(--prm-color);
 }
 
-a {
-    text-decoration: none;
-}
-
 .container {
     display: flex;
     flex-direction: column;

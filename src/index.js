@@ -1,15 +1,11 @@
 console.log('Tower of Hanoi is running.');
 console.log('Update attempt #1')
 
-import './styles.css';
+import './style.css';
+import createComponent from './handling-dom.js'
 
-function component() {
-    const element = document.createElement('div');
+const log = console.log;
+const body = document.body;
+// log(body);
 
-    element.innerHTML = 'Coming soon';
-    element.classList.add('hello');
-
-    return element;
- }
-
- document.body.appendChild(component());
+createComponent('div', ['container'], '', 'UNDER DEVELOPMENT', body);

@@ -6,14 +6,13 @@
 
 body {
     background-image: url("../img/tower-0.png");
-    background-color: #333;
+    /* background-color: #333; */
     filter: grayscale(25%) blur(0px) opacity(100%);
     /* background-position: top 30% center; */
     background-repeat: no-repeat;
     background-size: cover;
 }
 
-.hello {
-    color: red;
-    color: orange;
+.container {
+    color: darkblue;
 }

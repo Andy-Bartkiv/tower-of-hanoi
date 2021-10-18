@@ -15,4 +15,16 @@ body {
 
 .container {
     color: darkblue;
+    font-weight: 900;
+    display: flex;
+    justify-content: space-between;
+}
+
+a {
+    text-decoration: none;
+    color: wheat;
+}
+
+a:hover {
+    color: orange;
 }

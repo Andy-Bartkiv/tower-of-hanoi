@@ -3,7 +3,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  entry: './src/index.js',
+  entry: {
+    index: './src/index.js',
+    test: './src/test.js'
+  },
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
@@ -15,7 +18,13 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Tower of Hanoi',
+      chunks : ['index']
     }),
+    new HtmlWebpackPlugin({  // Also generate a test.html
+      filename: 'test.html',
+      title: 'testing TOH',
+      chunks : ['test']
+    })
   ],
   module: {
     rules: [

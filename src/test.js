@@ -4,25 +4,16 @@ import './style-test.css';
 const log = console.log;
 log('This is TEST.JS');
 const body = document.body;
-const cont = createComponent('div', ['container'], '', '', body);
-
-// import { createElement, moveElement } from './handlingDOM'
-function createElement(elType, elClass, elContent, elParent) {
-    const el = document.createElement(elType);
-    elClass.forEach(cls => el.classList.add(cls));
-    el.innerHTML = elContent;
-    if (elParent) elParent.appendChild(el);
-    return el;
-}
+const container = createComponent('div', body, ['container']);
+const root = document.querySelector(':root');
 
 function positionElement(e) {
-    // log('positioninig')
     // log(e.weight, e.pos.x-1, e.pos.y);
     e.element.style.transform = `translate(calc(${e.pos.x-1}*(50vw - (100vw/6))), calc(${e.pos.y}*8vh))`;
 }
 
-// Repositioning Element Throughout actual Animation, allows EventListeners
-function animateElement(x0, y0, x6, y6) {
+// Repositioning Element via CSS-animation
+function animateElementMove(x0, y0, x6, y6) {
     const el = GameState.activeDisk.element;
     el.style.transition = '0';
     root.style.setProperty('--x0', `${x0 - 1}`);
@@ -37,46 +28,46 @@ function animateElement(x0, y0, x6, y6) {
     })
 }
 
-function mmmanimateElement([tSrc, tTgt]) {
-    console.log('inside MMM Elem', tSrc, tTgt);
+function animateOneMove([tSrc, tTgt]) {
     // Select active Disc
     const topDiskAtTower = GameState.towers[tSrc].length;
-    if (topDiskAtTower > 0) {
+    if (topDiskAtTower > 0)
         GameState.activeDisk = getDiskByID(`disk-${GameState.towers[tSrc][topDiskAtTower - 1]}`);
-    }
     let x0 = tSrc;
     let y0 = GameState.activeDisk.pos.y;
     let x6 = tTgt;
     let y6 = maxDisk - GameState.towers[tTgt].length;
-    // console.log(GameState.activeDisk.pos);
-    // console.log(x0, y0, x6, y6);
+    // updating TOWERS
     GameState.towers[tSrc].pop();
     GameState.towers[tTgt].push(GameState.activeDisk.weight);
-    animateElement(x0, y0, x6, y6);
+    animateElementMove(x0, y0, x6, y6);
     GameState.activeDisk.pos = {x : x6, y : y6} ;
-    // console.log(GameState.activeDisk.pos);
 }
 
 // go forward one move
 function goForward() {
-	if (GameState.instructions.length > 0) {
+	if (GameState.instructions.length > 0 && !GameState.animationInProgress) {
         const move = GameState.instructions.shift();
-		mmmanimateElement(move);
+		animateOneMove(move);
         GameState.history.push(move);
-        // log(GameState.history);
-        // log(GameState.instructions);
         showMoveCnt();
     }
 }
 
 // go back one move
 function goBack() {
-	if (GameState.history.length > 0) {
+	if (GameState.history.length > 0 && !GameState.animationInProgress) {
         const move = GameState.history.pop();
-		mmmanimateElement([move[1], move[0]]);
+		animateOneMove([move[1], move[0]]);
         GameState.instructions.unshift(move);
         showMoveCnt();
     }
+}
+
+function startSolving() {
+
+    GameState.instructions.forEach((el, i) => 
+        sleep(i*2*getDelayValue()).then(() => goForward()));
 }
 
 function showMoveCnt() {
@@ -139,8 +130,7 @@ function initField() {
     GameState.towers = normalizeDisks(GameState.numDisk, SourceTower);
     // add and position Disk elements at the field
     for (let weight = maxDisk; weight > maxDisk - GameState.numDisk; weight--) {
-        const newDiskElement = createElement('div', ['disk'], '', field);
-        newDiskElement.id = `disk-${weight}`;
+        const newDiskElement = createComponent('div', field, ['disk'], `disk-${weight}`);
         positionElement(getDiskByID(`disk-${weight}`));
         newDiskElement.draggable = 'true';
     }
@@ -161,8 +151,7 @@ function restart(rnd = 'rnd') {
         const el = document.getElementById(`disk-${weight}`)
         // add disks if new numDisk is bigger than previous
         if (weight > maxDisk - GameState.numDisk && !el) {
-            const newDiskElement = createElement('div', ['disk'], '', field);
-            newDiskElement.id = `disk-${weight}`;
+            createComponent('div', field, ['disk'], `disk-${weight}`);
         // else remove disks from previous round should
         } else if (weight <= maxDisk - GameState.numDisk && el) { 
             el.remove();    
@@ -182,34 +171,7 @@ function restart(rnd = 'rnd') {
     showMoveCnt();
 }
 
-function moveOneDisk([tSrc, tTgt]) {
-    // console.log('inside Move One Disk', tSrc, tTgt);
-    // Select active Disc
-    const topDiskAtTower = GameState.towers[tSrc].length;
-    if (topDiskAtTower > 0) {
-        GameState.activeDisk = getDiskByID(`disk-${GameState.towers[tSrc][topDiskAtTower - 1]}`);
-    }
-    // log('going UP');
-    // let delay = getDelayValue();
-    let delay = GameState.animationDelay;
-    GameState.activeDisk.pos.y = 0;
-    GameState.towers[tSrc].pop();
-    positionElement(GameState.activeDisk);
-    sleep(delay).then(() => {
-        // log('going Side');
-        GameState.activeDisk.pos.x = tTgt;
-        positionElement(GameState.activeDisk);
-    });
-    sleep(delay*2).then(() => {
-        // log('going Down');
-        const towerTop = GameState.towers[tTgt].length;
-        GameState.activeDisk.pos.y = maxDisk - towerTop;
-        GameState.towers[tTgt].push(GameState.activeDisk.weight);
-        positionElement(GameState.activeDisk);        
-    });
-}
-
-// Provides set of instructions to move whole Tower (normalized, i.e. 4-3-2-1)
+// Returns set of instructions to move whole Tower (normalized, i.e. 4-3-2-1)
 // with max Disk "weight", from Source Tower to Target Tower
 function calcTowerMove(weight, tSrc, tTgt) {
     let res = []; 
@@ -222,7 +184,7 @@ function calcTowerMove(weight, tSrc, tTgt) {
     return res;
 }
 
-// Provides set of instructions to build Tower of Disks (from random Disks position) at Target Tower
+// Returns set of instructions to build Tower of Disks (from random Disks position) at Target Tower
 function calcTowerBuild(initTowers, tTgt) {
 		let res = [];
 		// deep copy of Towers array
@@ -251,8 +213,7 @@ const maxDisk = 8;
 const SourceTower = 0;
 const TargetTower = 2;
 
-let counter = 0;
-let animationPhase = 'idle';
+let solvPhase = false;
 
 const GameState = {
     towers : [[], [], []], // three arrays representing 3 Towers of Hanoi
@@ -260,6 +221,8 @@ const GameState = {
     numDisk : 5, // Number of disks for current game-round
     instructions : [], // set of instructions to solve puzzle from current positions
     animationDelay : 250,
+    animationInProgress : false,
+    solvingAll : false,
     activeDisk : {
         weight: maxDisk,
         pos : {'x': 0, 'y': 0},
@@ -267,85 +230,66 @@ const GameState = {
     }
 }
  
-const root = document.querySelector(':root');
-const container = document.querySelector('.container');
+// const container = document.querySelector('.container');
 // indication of current Parent Element to append or remove new elements
 let parentElement = container;
 // Top Menu
-const topMenu = createElement('div', ['menu', 'top-menu'], '', parentElement);
+const topMenu = createComponent('div', parentElement, ['menu', 'top-menu'] );
 // Game Field
-const field = createElement('div', ['field'], '', parentElement);
+const field = createComponent('div', parentElement, ['field']);
 initField();
 // Bottom Menu
-const bottomMenu = createElement('div', ['menu', 'bottom-menu'], '', parentElement);
+const bottomMenu = createComponent('div', parentElement, ['menu', 'bottom-menu']);
 
 // TOP - MENU BUTTONS
 parentElement = topMenu;
-const numberDisks = createElement('input', ['input'], '', parentElement);
-numberDisks.id = 'number';
+const numberDisks = createComponent('input', parentElement, ['input'], 'number',);
 numberDisks.type = 'number';
 numberDisks.min = '2';
 numberDisks.max = '8';
 numberDisks.value = `${GameState.numDisk}`;
-// RESTART-RND button
-const btnRestart = createElement('button', ['btn'], 'RND', parentElement);
-btnRestart.id = 'restart';
-btnRestart.addEventListener('click', () => restart('rnd'));
-// RESTART-NORM button
-const btnRestart2 = createElement('button', ['btn'], 'Norm', parentElement);
-btnRestart2.id = 'restart2';
-btnRestart2.addEventListener('click', () => restart(0));
-// Go Back One Move Btn
-const btnTower2 = createElement('button', ['btn'], '{--', parentElement);
-btnTower2.id = 't-2';
-btnTower2.addEventListener('click', goBack);
-// Display numebrs of Moves made
-const displayCounter = createElement('div', ['btn'], '0', parentElement);
-displayCounter.id = 'display-counter';
+// Btn - RESTART-RND
+const btnRND = createComponent('button', parentElement, ['btn'], 'btn-rnd', 'RND');
+btnRND.addEventListener('click', () => restart('rnd'));
+// Btn - RESTART-NORM
+const btnNorm = createComponent('button', parentElement, ['btn'], 'btn-norm', 'Norm');
+btnNorm.addEventListener('click', () => restart(0));
+// Btn - Go Back One Move
+const btnGoBack = createComponent('button', parentElement, ['btn'], 'btn-go-back', '{--');
+btnGoBack.addEventListener('click', goBack);
+// Display number of Moves made
+const displayCounter = createComponent('div', parentElement, ['btn'], 'display-counter', '0');
 
 // Bottom-MENU Buttons
 parentElement = bottomMenu;
 // INCREASE Animation delay btn
-const btnIncDelay = createElement('button', ['btn'], '+++', parentElement);
-btnIncDelay.id = 'inc-del';
+const btnIncDelay = createComponent('button', parentElement, ['btn'], 'inc-del', '+++');
 btnIncDelay.addEventListener('click', () => changeDelay(+1));
 // Display Animation Speed
-const displayDelay = createElement('div', ['btn'], `${GameState.animationDelay}`, parentElement);
-displayDelay.id = 'display-delay';
+const displayDelay = createComponent('div', parentElement, ['btn'], 'display-delay', `${GameState.animationDelay}`);
 // Decrease Animation delay btn
-const btnDecDelay = createElement('button', ['btn'], '---', parentElement);
-btnDecDelay.id = 'inc-del';
+const btnDecDelay = createComponent('button', parentElement, ['btn'], 'inc-del', '---');
 btnDecDelay.addEventListener('click', () => changeDelay(-1));
 
-
-const btnTower0 = createElement('button', ['btn'], 'A >', parentElement);
-btnTower0.id = 't-0';
-// btnTower0.addEventListener('click', () => {
-// 	if (GameState.instructions.length > 0)
-// 		mmmanimateElement(GameState.instructions.shift())
-// 	});
-btnTower0.addEventListener('click', goForward);
-
 // FORWARD 1 step button
-const btnFWD = createElement('button', ['btn'], '>', parentElement);
-btnFWD.id = 'fwd';
-btnFWD.addEventListener('click', () => moveOneDisk(GameState.instructions.shift()));
-
+const btnOneStep = createComponent('button', parentElement, ['btn'], 'btn-one-step', 'A >');
+btnOneStep.addEventListener('click', goForward);
 // SOLVE puzzle to the end
-const btnFWDEnd = createElement('button', ['btn'], '>>>', parentElement);
-btnFWDEnd.id = 'fwd-end';
-btnFWDEnd.addEventListener('click', () => 
-    // GameState.instructions.forEach((el, i) => sleep(i*2*getDelayValue()).then(() => mmmanimateElement(el)))
-    GameState.instructions.forEach((el, i) => sleep(i*3*getDelayValue()).then(() => moveOneDisk(el)))
-);
+const btnForward = createComponent('button', parentElement, ['btn'], 'btn-forward', '>>>');
+// btnForward.addEventListener('click', startSolving);
+btnForward.addEventListener('click', () => {
+    GameState.solvingAll = true;
+    goForward();
+});
+// puzzle to the end
+const btnStop = createComponent('button', parentElement, ['btn'], 'btn-stop', '[_]');
+btnStop.addEventListener('click', () => GameState.solvingAll = false );
 
-const btnTower1 = createElement('button', ['btn'], '[_]', parentElement);
-btnTower1.id = 't-1';
-// btnTower1.addEventListener('click', () => {
-//     let d = document.getElementById('disk-8');
-//     d.id = 'disk-80';
-// });
-
-let disk8 = document.querySelector('#disk-8');
-disk8.addEventListener('animationstart', () => log('animation started'));
-disk8.addEventListener('animationend', () => log('animation ENDED'));
+// Event Listeners for Animation purpose
+field.addEventListener('animationstart', () => {
+    GameState.animationInProgress = true;
+});
+field.addEventListener('animationend', () => {
+    GameState.animationInProgress = false;
+    if (GameState.solvingAll) goForward();
+});

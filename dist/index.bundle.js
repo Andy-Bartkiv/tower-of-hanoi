@@ -126,7 +126,7 @@ eval("\n\n/* istanbul ignore next  */\nfunction styleTagTransform(css, styleElem
   \*****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ createComponent)\n/* harmony export */ });\nfunction createComponent(elType, elClass = [], elID = '', elContent = '', elParent = 'document.body') {\r\n    const el = document.createElement(elType);\r\n    elClass.forEach(cls => el.classList.add(cls));\r\n    if (elID !== '') el.id = elID;\r\n    el.innerHTML = elContent;\r\n    if (elParent) elParent.appendChild(el);\r\n    return el;\r\n}\n\n//# sourceURL=webpack://tower-of-hanoi/./src/handling-dom.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ createComponent)\n/* harmony export */ });\nfunction createComponent(elType, elParent = 'document.body', elClass = [], elID = '', elContent = '') {\r\n    const el = document.createElement(elType);\r\n    elClass.forEach(cls => el.classList.add(cls));\r\n    if (elID !== '') el.id = elID;\r\n    el.innerHTML = elContent;\r\n    if (elParent) elParent.appendChild(el);\r\n    return el;\r\n}\n\n//# sourceURL=webpack://tower-of-hanoi/./src/handling-dom.js?");
 
 /***/ }),
 

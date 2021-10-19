@@ -7,6 +7,6 @@ const log = console.log;
 const body = document.body;
 // log(body);
 
-const cont = createComponent('div', ['container'], '', '', body);
-createComponent('div', ['label'], '', 'UNDER CONSTRUCTION', cont);
-createComponent('div', ['link'], '', '<a href="test.html">TEST</a>', cont);
+const cont = createComponent('div', body,['container']);
+createComponent('div', cont, ['label'], '', 'UNDER CONSTRUCTION');
+createComponent('div', cont, ['link'], '', '<a href="test.html">TEST</a>');

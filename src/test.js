@@ -1,10 +1,16 @@
-import createComponent from './handling-dom.js'
+import createComponent from './handling-dom';
+import calcTowerBuild from './recursive';
+import shuffleDisks from './shuffle';
 import './style-test.css';
 
-// provides Delay in "ms" before execution portion of code, which follows .THEN, when function called
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+// service functions
+const log = console.log;
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const body = document.body;
+const container = createComponent('div', body, ['container']);
+const root = document.querySelector(':root');
+
 
 function MDP() {
     // for (let weight = maxDisk; weight > maxDisk - GameState.numDisk; weight--) {
@@ -28,17 +34,6 @@ function dragstart_handler(ev) {
 //     element.addEventListener("dragstart", dragstart_handler);
 //   });
 
-
-const log = console.log;
-const body = document.body;
-const container = createComponent('div', body, ['container']);
-const root = document.querySelector(':root');
-
-function positionElement(e) {
-    // log(e.weight, e.pos.x-1, e.pos.y);
-    e.element.style.transform = `translate(calc(${e.pos.x-1}*(50vw - (100vw/6))), calc(${e.pos.y}*8vh))`;
-}
-
 // Repositioning Element via CSS-animation
 function animateElementMove(x0, y0, x6, y6) {
     const el = GameState.activeDisk.element;
@@ -55,6 +50,7 @@ function animateElementMove(x0, y0, x6, y6) {
     })
 }
 
+// show one Disk reposition animation "over-top"
 function animateOneMove([tSrc, tTgt]) {
     // Select active Disc
     const topDiskAtTower = GameState.towers[tSrc].length;
@@ -139,22 +135,6 @@ function getDiskByID(id) {
     return { 'weight' : weight, 'pos': getXY(weight), 'element' : element};
 };
 
-function randomizeDisks(numD, maxD = 8, twrs = 3) {
-    let res = [[],[],[]];
-    for (let w = maxD ; w > maxD - numD; w--) {
-        res[Math.floor(Math.random() * twrs)].push(w);
-    }
-    return res;
-};
-
-function normalizeDisks(numD, tSrc = 0, maxD = 8) {
-    let res = [[],[],[]];
-    for (let w = maxD; w > maxD - numD; w--) {
-        res[tSrc].push(w);
-    }  
-    return res;
-};
-
 // Start of Each new round
 function restart(rnd = 'rnd') {
     GameState.solvingAll = false;
@@ -180,55 +160,19 @@ function restart(rnd = 'rnd') {
     }
 
     const oldTowers = JSON.parse(JSON.stringify(GameState.towers));
-    // creating new Disks position at the field
-    GameState.towers = (rnd === 'rnd') 
-        ? randomizeDisks(GameState.numDisk)
-        : normalizeDisks(GameState.numDisk, rnd);
-    // position Disks at the field according to Towers array
+    // create new Disks position at the field
+    GameState.towers = shuffleDisks(GameState.numDisk, rnd);
+    // GameState.towers = (rnd === 'rnd') 
+    //     ? randomizeDisks(GameState.numDisk)
+    //     : normalizeDisks(GameState.numDisk);
+    // position Disks at the field according to new Towers array
     repositionAllDisks(oldTowers, GameState.towers);
-
     // Calculate Instructions to solve the puzzle with new Disks position
     GameState.instructions = calcTowerBuild(GameState.towers, TargetTower);
     showMoveCnt();
 };
 
-// Returns set of instructions to move whole Tower (normalized, i.e. 4-3-2-1)
-// with max Disk "weight", from Source Tower to Target Tower
-function calcTowerMove(weight, tSrc, tTgt) {
-    let res = []; 
-    if (weight > 0) {
-      const tAux = 3 - tSrc - tTgt;
-      res.push(...calcTowerMove(weight-1, tSrc, tAux));
-      res.push([tSrc, tTgt]);
-      res.push(...calcTowerMove(weight-1, tAux, tTgt));
-    }
-    return res;
-};
-
-// Returns set of instructions to build Tower of Disks (from random Disks position) at Target Tower
-function calcTowerBuild(initTowers, tTgt) {
-		let res = [];
-		// deep copy of Towers array
-		const newTowers = JSON.parse(JSON.stringify(initTowers));
-		// Values for Max and Min weight of Disks in new Towers array
-		const maxW = Math.max(...newTowers.map(t => Math.max(...t)));
-		const minW = Math.min(...newTowers.map(t => Math.min(...t)));
-		// determine Source (where maxW Disk is located) and Auxillary Towers
-		const tSrc = newTowers.findIndex(t => t.includes(maxW)); 
-		const tAux = 3 - tSrc - tTgt;
-		// Combine Recursive Tower building and Tower moving algorithms
-		if (tSrc >= 0) {
-			newTowers[tSrc].shift();
-			if (tSrc === tTgt) { // if heaviest Disk in new Array is at Target Tower already
-				res.push(...calcTowerBuild(newTowers, tTgt))
-			} else { // if it is not 
-				res.push(...calcTowerBuild(newTowers, tAux));
-				res.push([tSrc, tTgt]);
-				res.push(...calcTowerMove(maxW - minW, tAux, tTgt));	
-			}
-		}
-  return res;
-};
+// - - - END OF FUNCTIONS BLOCK - - -
 
 const maxDisk = 8;
 const animationNorm = 500;
@@ -251,7 +195,6 @@ const GameState = {
     }
 }
  
-// const container = document.querySelector('.container');
 // indication of current Parent Element to append or remove new elements
 let parentElement = container;
 // Top Menu
@@ -264,19 +207,21 @@ const bottomMenu = createComponent('div', parentElement, ['menu', 'bottom-menu']
 // TOP - MENU BUTTONS
 parentElement = topMenu;
 
+// switch between Auto and Manual solving
 const btnManual = createComponent('button', parentElement, ['btn'], 'btn-manual', 'Auto');
-// const updateBtnManual = () => btnManual.innerHTML = (GameState.manual) ? 'Man' : 'Auto';
 btnManual.addEventListener('click', () => {
     GameState.manual = !GameState.manual;
     btnManual.innerHTML = (GameState.manual) ? 'Man' : 'Auto';
     MDP();
 });
 
+// input for number of Disks for the next round
 const numberDisks = createComponent('input', parentElement, ['input'], 'number',);
 numberDisks.type = 'number';
 numberDisks.min = '2';
 numberDisks.max = '8';
 numberDisks.value = `${GameState.numDisk}`;
+
 // Btn - RESTART-RND
 const btnRND = createComponent('button', parentElement, ['btn'], 'btn-rnd', 'RND');
 btnRND.addEventListener('click', () => { if (!GameState.animationInProgress) restart('rnd')});

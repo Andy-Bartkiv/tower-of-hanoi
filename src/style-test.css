@@ -24,8 +24,6 @@ body {
 }
 
 div {
-    /* border: 1px solid orange; */
-    /* padding: 1vmin; */
     color: var(--prm-color);
 }
 
@@ -56,7 +54,6 @@ div {
     height: 72vh;
     display: flex;
     justify-content: center;
-
     background-size: calc(100vw/3) 8vh;
     background-image:
         linear-gradient(to right, #333 1px, transparent 1px),
@@ -64,8 +61,6 @@ div {
 }
 
 .disk {
-    /* outline: 2px solid orange; */
-    /* outline-offset: -2px; */
     padding: 2vmin;
     background: goldenrod;
     background: linear-gradient(0deg, var(--color-sec), var(--color-prm) 40% 60%, var(--color-sec));
@@ -73,7 +68,7 @@ div {
     width: calc(100vw/3);
     height: 8vh;
     position: absolute;
-    transition: linear var(--anim-delay);
+    /* transition: linear var(--anim-delay); */
     transition: 0s;
     margin: auto;
 }
@@ -99,20 +94,17 @@ div {
     min-height: 5vh;
 }
 
-.moving {
+.moving-over-top {
     background-color: var(--color-sec);
     box-shadow:
-        /* 0 0 2.5vmin var(--color-sec), */
-        /* 0 0 5vmin var(--color-sec), */
         0 0 5vmin 1vmin var(--color-prm);
-    animation-name: example;
-    animation-duration: calc(2*var(--anim-delay));
-    animation-timing-function: ease-in;
+    animation-name: over-top;
+    animation-duration: var(--anim-delay);
     animation-timing-function: linear;
   }
-  /* transform: translate(calc(e.pos.x-1*(50vw - (100vw/6))), calc(${e.pos.y}*8vh))} */
+
   
-  @keyframes example {
+  @keyframes over-top {
     0%   {transform: translate(calc(var(--x0)*(50vw - (100vw/6))), calc(var(--y0)*8vh))}
     30%  {transform: translate(calc(var(--x0)*(50vw - (100vw/6))), calc(var(--y3)*8vh))}
     70%  {transform: translate(calc(var(--x6)*(50vw - (100vw/6))), calc(var(--y3)*8vh))}

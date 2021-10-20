@@ -43,6 +43,7 @@ function positionElement(e) {
 function animateElementMove(x0, y0, x6, y6) {
     const el = GameState.activeDisk.element;
     const elClass = 'moving-over-top';
+    // set animation variables for CSS animation
     root.style.setProperty('--x0', `${x0 - 1}`);
     root.style.setProperty('--y0', `${y0}`);   
     root.style.setProperty('--x6', `${x6 - 1}`);
@@ -70,20 +71,20 @@ function animateOneMove([tSrc, tTgt]) {
     GameState.activeDisk.pos = {x : x6, y : y6};
 }
 
-// move all disks simultaneously
-function moveAllDisks(towersSrc, towersTgt) {
+// move all disks simultaneously at round start
+function repositionAllDisks(towersSrc, towersTgt) {
     for (let weight = maxDisk; weight > maxDisk - GameState.numDisk; weight--) {
         let { x : x0, y : y0 } = getXY(weight, towersSrc);
         let { x : x6, y : y6 } = getXY(weight, towersTgt);
-        log(weight, ':', x0, y0, x6, y6);
+        // log(weight, ':', x0, y0, x6, y6);
         const el = document.getElementById(`disk-${weight}`);
         el.animate([ 
             { transform :`translate(calc(${x0-1}*(50vw - (100vw/6))), calc(${y0}*8vh)` },
             { transform :`translate(calc(${x6-1}*(50vw - (100vw/6))), calc(${y6}*8vh)` }
-        ], GameState.animationDelay);
+        ], GameState.animationDelay/2);
         el.style.transform = `translate(calc(${x6-1}*(50vw - (100vw/6))), calc(${y6}*8vh))`;
     }
-}
+};
 
 // go forward one move
 function goForward() {
@@ -154,22 +155,9 @@ function normalizeDisks(numD, tSrc = 0, maxD = 8) {
     return res;
 };
 
-function initField() {
-    // creating initial Disks disposition = normal-tower at Source Tower
-    GameState.towers = normalizeDisks(GameState.numDisk, SourceTower);
-    // add and position Disk elements at the field
-    for (let weight = maxDisk; weight > maxDisk - GameState.numDisk; weight--) {
-        createComponent('div', field, ['disk'], `disk-${weight}`);
-        positionElement(getDiskByID(`disk-${weight}`));
-    }
-    // Calculate Instructions to solve the puzzle
-    GameState.instructions = calcTowerMove(GameState.numDisk, SourceTower, TargetTower);
-    // synchronize delay values between js and css
-    root.style.setProperty('--anim-delay', `${GameState.animationDelay/1000}s`);
-};
-
+// Start of Each new round
 function restart(rnd = 'rnd') {
-    console.log('restart Game'); 
+    GameState.solvingAll = false;
     // clearing history array;
     GameState.history = [];
     // reset animation speed;
@@ -190,23 +178,16 @@ function restart(rnd = 'rnd') {
             el.remove();    
         }
     }
-    for (let weight = maxDisk; weight > maxDisk - GameState.numDisk; weight--) {
-        // positionElement(getDiskByID(`disk-${weight}`));
-    }
-    const oldTowers = JSON.parse(JSON.stringify(GameState.towers));
 
-    // creating initial Disks disposition
+    const oldTowers = JSON.parse(JSON.stringify(GameState.towers));
+    // creating new Disks position at the field
     GameState.towers = (rnd === 'rnd') 
         ? randomizeDisks(GameState.numDisk)
         : normalizeDisks(GameState.numDisk, rnd);
-
-    moveAllDisks(oldTowers, GameState.towers);
-
     // position Disks at the field according to Towers array
-    for (let weight = maxDisk; weight > maxDisk - GameState.numDisk; weight--) {
-        // positionElement(getDiskByID(`disk-${weight}`));
-    }
-    // Calculate Instructions to solve the puzzle
+    repositionAllDisks(oldTowers, GameState.towers);
+
+    // Calculate Instructions to solve the puzzle with new Disks position
     GameState.instructions = calcTowerBuild(GameState.towers, TargetTower);
     showMoveCnt();
 };
@@ -277,7 +258,6 @@ let parentElement = container;
 const topMenu = createComponent('div', parentElement, ['menu', 'top-menu'] );
 // Game Field
 const field = createComponent('div', parentElement, ['field']);
-initField();
 // Bottom Menu
 const bottomMenu = createComponent('div', parentElement, ['menu', 'bottom-menu']);
 
@@ -299,7 +279,7 @@ numberDisks.max = '8';
 numberDisks.value = `${GameState.numDisk}`;
 // Btn - RESTART-RND
 const btnRND = createComponent('button', parentElement, ['btn'], 'btn-rnd', 'RND');
-btnRND.addEventListener('click', () => restart('rnd'));
+btnRND.addEventListener('click', () => { if (!GameState.animationInProgress) restart('rnd')});
 // Btn - RESTART-NORM
 const btnNorm = createComponent('button', parentElement, ['btn'], 'btn-norm', 'Norm');
 btnNorm.addEventListener('click', () => { if (!GameState.animationInProgress) restart(0)});
@@ -330,7 +310,7 @@ btnForward.addEventListener('click', () => {
     GameState.solvingAll = true;
     goForward();
 });
-// puzzle to the end
+// btn to STOP solving puzzle
 const btnStop = createComponent('button', parentElement, ['btn'], 'btn-stop', '[_]');
 btnStop.addEventListener('click', () => GameState.solvingAll = false );
 
@@ -342,3 +322,6 @@ field.addEventListener('animationend', () => {
     GameState.animationInProgress = false;
     if (GameState.solvingAll) goForward();
 });
+
+// first round starting from tower 0
+restart(0);

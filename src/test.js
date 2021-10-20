@@ -13,26 +13,46 @@ const root = document.querySelector(':root');
 
 
 function MDP() {
-    // for (let weight = maxDisk; weight > maxDisk - GameState.numDisk; weight--) {
-    //     let disk = document.getElementById(`disk-${weight}`);
-    //     disk.draggable = 'true';
-        // log(disk);
-    // }
-    let disk = document.getElementById(`disk-${maxDisk - GameState.numDisk + 1}`);
-    disk.draggable = 'true';
+    for (let w = maxDisk; w > maxDisk - GameState.numDisk; w--) {
+        let drg = document.getElementById(`disk-${w}`);
+        drg.draggable = 'true';
+        log(drg);
+
+        drg.addEventListener('dragstart', (ev) => {
+            let towers = GameState.towers;
+            drg.classList.add('dragging');
+            const {x, y} = getXY(w);
+            // log(x,y);
+            towers.forEach((t, i) => {
+                const maxW = (t.length > 0) ? t[t.length-1] : maxDisk+10;
+                if (i !== x && w < maxW) {
+                    const el = createComponent('div', field, ['hint-disk'], `disk-${w}`);
+                    el.style.transform = `translate(calc(${i-1}*(50vw - (100vw/6))), calc(${maxDisk - t.length}*8vh))`;
+                    // log(i-1, t.length-1)
+                }
+            })
+        });
+        
+        drg.addEventListener('dragend', (ev) => {
+            drg.classList.remove('dragging'); 
+            const hintDisks = [...document.querySelectorAll('.hint-disk')];
+            hintDisks.forEach(el => field.removeChild(el));
+        });
+
+    }
+//     let w = maxDisk - GameState.numDisk + 1;
+//     let drg = document.getElementById(`disk-${w}`);
+//     drg.draggable = 'true';
+//     log(drg);
+
 };
 
-function dragstart_handler(ev) {
-    // Add the target element's id to the data transfer object
-    ev.dataTransfer.setData("text/plain", ev.target.id);
-};
+// document.addEventListener('drag')
 
-// window.addEventListener('DOMContentLoaded', (weight) => {
-//     // Get the element by id
-//     const element = document.getElementById(`disk-4`);
-//     // Add the ondragstart event listener
-//     element.addEventListener("dragstart", dragstart_handler);
-//   });
+
+
+
+
 
 // Repositioning Element via CSS-animation
 function animateElementMove(x0, y0, x6, y6) {

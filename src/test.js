@@ -3,6 +3,8 @@ import calcTowerBuild from './recursive';
 import shuffleDisks from './shuffle';
 import './style-test.css';
 
+const aliasTranslate = (x,y) => `translate(calc(${x-1}*(50vw - (100vw/6))), calc(${y}*8vh))`
+
 // service functions
 const log = console.log;
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -11,75 +13,105 @@ const body = document.body;
 const container = createComponent('div', body, ['container']);
 const root = document.querySelector(':root');
 
-
-function MDP() {
+function autoDM() {
+    log('auto');
+    GameState.instructions = calcTowerBuild(GameState.towers, TargetTower);
     for (let w = maxDisk; w > maxDisk - GameState.numDisk; w--) {
-        let drg = document.getElementById(`disk-${w}`);
-        drg.draggable = 'true';
-        log(drg);
+        let drg = document.getElementById(`d-${w}`);
+        drg.setAttribute('draggable', false);
+        // log(drg)
+        // drg.removeEventListener('dragstart', () => handleDragStart(drg, w));
+        // drg.removeEventListener('dragend', null);
+    }
+}
 
-        drg.addEventListener('dragstart', (ev) => {
-            let towers = GameState.towers;
-            drg.classList.add('dragging');
-            const {x, y} = getXY(w);
-            // log(x,y);
-            towers.forEach((t, i) => {
-                const maxW = (t.length > 0) ? t[t.length-1] : maxDisk+10;
-                if (i !== x && w < maxW) {
-                    const el = createComponent('div', field, ['hint-disk'], `disk-${w}`);
-                    el.style.transform = `translate(calc(${i-1}*(50vw - (100vw/6))), calc(${maxDisk - t.length}*8vh))`;
-                    // log(i-1, t.length-1)
-                }
-            })
-        });
+function ManDM() {
+    log('manual')
+    for (let w = maxDisk; w > maxDisk - GameState.numDisk; w--) {
+        let drg = document.getElementById(`d-${w}`);
+        drg.setAttribute('draggable', false);
+        // log(drg.draggable, drg);
+
+        const {x, y} = getXY(w);
+        // log(x,y);
+        const minW =  Math.min(...GameState.towers[x]);
+        // if (w === minW) {
+        if (true) {
+            drg.draggable = 'true';
+            drg.addEventListener('dragstart', () => {
+                handleDragStart(drg, w);
+            });   
+            drg.addEventListener('dragend', () => {
+                drg.classList.remove('dragging'); 
+                const hintDisks = [...document.querySelectorAll('.hint-disk')];
+                hintDisks.forEach(el => field.removeChild(el));
+            });
+
+        }
         
-        drg.addEventListener('dragend', (ev) => {
-            drg.classList.remove('dragging'); 
-            const hintDisks = [...document.querySelectorAll('.hint-disk')];
-            hintDisks.forEach(el => field.removeChild(el));
-        });
+        
 
     }
-//     let w = maxDisk - GameState.numDisk + 1;
-//     let drg = document.getElementById(`disk-${w}`);
-//     drg.draggable = 'true';
-//     log(drg);
-
+    document.addEventListener('drop', (ev) => {
+        const tSrc = GameState.activeDisk.pos.x;
+        const tTgt = 1 * ev.target.id.slice(-1);
+        GameState.towers[tSrc].pop();
+        GameState.towers[tTgt].push(GameState.activeDisk.weight);
+        GameState.history.push([tSrc, tTgt]);
+        showMoveCnt();
+        GameState.activeDisk.element.style.transform = ev.target.style.transform;
+    }); 
+        
 };
 
-// document.addEventListener('drag')
-
-
-
-
-
+function handleDragStart(drg, w) {
+    let towers = GameState.towers;
+    GameState.activeDisk = getDiskByID(`d-${w}`);
+    log(GameState.activeDisk)
+    drg.classList.add('dragging');
+    const {x, y} = getXY(w);
+    // log(x,y);
+    towers.forEach((t, i) => {
+        const maxW = (t.length > 0) ? t[t.length-1] : maxDisk+10;
+        if (i !== x && w < maxW) {
+            const el = createComponent('div', field, ['hint-disk', `disk-${w}`], `h-${i}`);
+            // el.style.transform = `translate(calc(${i-1}*(50vw - (100vw/6))), calc(${maxDisk - t.length}*8vh))`;
+            el.style.transform = aliasTranslate(i, maxDisk - t.length);
+            el.addEventListener('dragover', (ev) => {
+                ev.preventDefault();
+            });
+        }
+    })
+}
 
 // Repositioning Element via CSS-animation
 function animateElementMove(x0, y0, x6, y6) {
     const el = GameState.activeDisk.element;
     const elClass = 'moving-over-top';
+    el.classList.add(elClass);
     // set animation variables for CSS animation
     root.style.setProperty('--x0', `${x0 - 1}`);
     root.style.setProperty('--y0', `${y0}`);   
     root.style.setProperty('--x6', `${x6 - 1}`);
     root.style.setProperty('--y6', `${y6}`);
-    el.classList.add(elClass);
     el.addEventListener('animationend', () => {
+        // el.style.transform = `translate(calc(${x6-1}*(50vw - (100vw/6))), calc(${y6}*8vh))`;
+        el.style.transform = aliasTranslate(x6, y6);
         el.classList.remove(elClass);
-        el.style.transform = `translate(calc(${x6-1}*(50vw - (100vw/6))), calc(${y6}*8vh))`;
     })
 }
 
 // show one Disk reposition animation "over-top"
 function animateOneMove([tSrc, tTgt]) {
     // Select active Disc
-    const topDiskAtTower = GameState.towers[tSrc].length;
-    if (topDiskAtTower > 0)
-        GameState.activeDisk = getDiskByID(`disk-${GameState.towers[tSrc][topDiskAtTower - 1]}`);
+    // const topDiskAtTower = GameState.towers[tSrc].length;
+    const freePositionAtTower = (tower) => GameState.towers[tower].length;
+    if (freePositionAtTower(tSrc) > 0)
+        GameState.activeDisk = getDiskByID(`d-${GameState.towers[tSrc][freePositionAtTower(tSrc) - 1]}`);
     let x0 = tSrc;
     let y0 = GameState.activeDisk.pos.y;
     let x6 = tTgt;
-    let y6 = maxDisk - GameState.towers[tTgt].length;
+    let y6 = maxDisk - freePositionAtTower(tTgt);
     // updating TOWERS
     GameState.towers[tSrc].pop();
     GameState.towers[tTgt].push(GameState.activeDisk.weight);
@@ -93,12 +125,13 @@ function repositionAllDisks(towersSrc, towersTgt) {
         let { x : x0, y : y0 } = getXY(weight, towersSrc);
         let { x : x6, y : y6 } = getXY(weight, towersTgt);
         // log(weight, ':', x0, y0, x6, y6);
-        const el = document.getElementById(`disk-${weight}`);
+        const el = document.getElementById(`d-${weight}`);
         el.animate([ 
-            { transform :`translate(calc(${x0-1}*(50vw - (100vw/6))), calc(${y0}*8vh)` },
-            { transform :`translate(calc(${x6-1}*(50vw - (100vw/6))), calc(${y6}*8vh)` }
+            // { transform :`translate(calc(${x0-1}*(50vw - (100vw/6))), calc(${y0}*8vh)` },
+            { transform : aliasTranslate(x0, y0) },
+            { transform : aliasTranslate(x6, y6) }
         ], GameState.animationDelay/2);
-        el.style.transform = `translate(calc(${x6-1}*(50vw - (100vw/6))), calc(${y6}*8vh))`;
+        el.style.transform = aliasTranslate(x6, y6);
     }
 };
 
@@ -168,10 +201,10 @@ function restart(rnd = 'rnd') {
     GameState.numDisk = numberDisks.value;
     // update new disks amount
     for (let weight = maxDisk; weight > maxDisk - 8; weight--) {
-        const el = document.getElementById(`disk-${weight}`)
+        const el = document.getElementById(`d-${weight}`)
         // add disks if new numDisk is bigger than previous
         if (weight > maxDisk - GameState.numDisk && !el) {
-            createComponent('div', field, ['disk'], `disk-${weight}`);
+            createComponent('div', field, ['disk', `disk-${weight}`], `d-${weight}`);
             GameState.towers[0].push(weight);
         // else remove disks from previous round should
         } else if (weight <= maxDisk - GameState.numDisk && el) { 
@@ -207,7 +240,7 @@ const GameState = {
     animationDelay : animationNorm,
     animationInProgress : false,
     solvingAll : false,
-    manual: false,
+    manual: true,
     activeDisk : {
         weight: maxDisk,
         pos : {'x': 0, 'y': 0},
@@ -228,11 +261,14 @@ const bottomMenu = createComponent('div', parentElement, ['menu', 'bottom-menu']
 parentElement = topMenu;
 
 // switch between Auto and Manual solving
-const btnManual = createComponent('button', parentElement, ['btn'], 'btn-manual', 'Auto');
+const btnManual = createComponent('button', parentElement, ['btn'], 'btn-manual', '');
+btnManual.innerHTML = (GameState.manual) ? 'Man' : 'Auto';
 btnManual.addEventListener('click', () => {
     GameState.manual = !GameState.manual;
+    if (GameState.manual) ManDM();
+    else autoDM();
     btnManual.innerHTML = (GameState.manual) ? 'Man' : 'Auto';
-    MDP();
+    
 });
 
 // input for number of Disks for the next round

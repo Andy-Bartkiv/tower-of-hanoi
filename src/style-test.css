@@ -63,21 +63,29 @@ div {
 .disk {
     background: linear-gradient(0deg, var(--color-sec), var(--color-prm), var(--color-sec));
     border-radius: 3.5vmin;
-    width: calc(100vw/3);
     height: 8vh;
     position: absolute;
     transition: 0s;
     margin: auto;
 }
 
-#disk-8 { width: calc(100vw/3 - 0*3.5vw); --color-prm: #f00; --color-sec: #f008; }
-#disk-7 { width: calc(100vw/3 - 1*3.5vw); --color-prm: #f80; --color-sec: #f808; }
-#disk-6 { width: calc(100vw/3 - 2*3.5vw); --color-prm: #ff0; --color-sec: #ff08; }
-#disk-5 { width: calc(100vw/3 - 3*3.5vw); --color-prm: #0f0; --color-sec: #0f08; }
-#disk-4 { width: calc(100vw/3 - 4*3.5vw); --color-prm: #0ff; --color-sec: #0ff8; }
-#disk-3 { width: calc(100vw/3 - 5*3.5vw); --color-prm: #00f; --color-sec: #00f8; }
-#disk-2 { width: calc(100vw/3 - 6*3.5vw); --color-prm: #f0f; --color-sec: #f0f8; }
-#disk-1 { width: calc(100vw/3 - 7*3.5vw); --color-prm: #faa; --color-sec: #faa8; }
+.hint-disk {
+    box-shadow:
+        inset 0 0 5vmin .1vmin var(--color-prm);
+    border-radius: 3.5vmin;
+    height: 8vh;
+    position: absolute;
+    margin: auto;
+}
+
+.disk-8 { width: calc(100vw/3 - 0*3.5vw); --color-prm: #f00; --color-sec: #f008; }
+.disk-7 { width: calc(100vw/3 - 1*3.5vw); --color-prm: #f80; --color-sec: #f808; }
+.disk-6 { width: calc(100vw/3 - 2*3.5vw); --color-prm: #ff0; --color-sec: #ff08; }
+.disk-5 { width: calc(100vw/3 - 3*3.5vw); --color-prm: #0f0; --color-sec: #0f08; }
+.disk-4 { width: calc(100vw/3 - 4*3.5vw); --color-prm: #0ff; --color-sec: #0ff8; }
+.disk-3 { width: calc(100vw/3 - 5*3.5vw); --color-prm: #00f; --color-sec: #00f8; }
+.disk-2 { width: calc(100vw/3 - 6*3.5vw); --color-prm: #f0f; --color-sec: #f0f8; }
+.disk-1 { width: calc(100vw/3 - 7*3.5vw); --color-prm: #faa; --color-sec: #faa8; }
 
 .btn {
     min-width: 10vh;
@@ -111,16 +119,6 @@ div {
 
   .dragging {
       /* background-color: white ; */
-      box-shadow:
-        0 0 5vmin 1vmin var(--color-prm);
-  }
-
-  .hint-disk {
-    box-shadow:
-        inset 0 0 5vmin .1vmin var(--color-prm);
-    border-radius: 3.5vmin;
-    width: calc(100vw/3);
-    height: 8vh;
-    position: absolute;
-    margin: auto;
+      /* box-shadow:
+        0 0 5vmin 1vmin var(--color-prm); */
   }

@@ -3,85 +3,76 @@ import calcTowerBuild from './recursive';
 import shuffleDisks from './shuffle';
 import './style-test.css';
 
-const aliasTranslate = (x,y) => `translate(calc(${x-1}*(50vw - (100vw/6))), calc(${y}*8vh))`
-
 // service functions
 const log = console.log;
+const copyArray = (arr) => JSON.parse(JSON.stringify(arr));
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-const body = document.body;
-const container = createComponent('div', body, ['container']);
-const root = document.querySelector(':root');
+const aliasTranslate = (x,y) => `translate(calc(${x-1}*(50vw - (100vw/6))), calc(${y}*8vh))`;
 
 function autoDM() {
     log('auto');
     GameState.instructions = calcTowerBuild(GameState.towers, TargetTower);
     for (let w = maxDisk; w > maxDisk - GameState.numDisk; w--) {
-        let drg = document.getElementById(`d-${w}`);
-        drg.setAttribute('draggable', false);
-        // log(drg)
-        // drg.removeEventListener('dragstart', () => handleDragStart(drg, w));
-        // drg.removeEventListener('dragend', null);
-    }
+        document.getElementById(`d-${w}`).setAttribute('draggable', false);
+    }   
 }
 
 function ManDM() {
     log('manual')
     for (let w = maxDisk; w > maxDisk - GameState.numDisk; w--) {
         let drg = document.getElementById(`d-${w}`);
-        drg.setAttribute('draggable', false);
-        // log(drg.draggable, drg);
-
-        const {x, y} = getXY(w);
-        // log(x,y);
-        const minW =  Math.min(...GameState.towers[x]);
-        // if (w === minW) {
-        if (true) {
-            drg.draggable = 'true';
-            drg.addEventListener('dragstart', () => {
-                handleDragStart(drg, w);
-            });   
-            drg.addEventListener('dragend', () => {
-                drg.classList.remove('dragging'); 
-                const hintDisks = [...document.querySelectorAll('.hint-disk')];
-                hintDisks.forEach(el => field.removeChild(el));
-            });
-
-        }
-        
-        
-
-    }
-    document.addEventListener('drop', (ev) => {
-        const tSrc = GameState.activeDisk.pos.x;
-        const tTgt = 1 * ev.target.id.slice(-1);
-        GameState.towers[tSrc].pop();
-        GameState.towers[tTgt].push(GameState.activeDisk.weight);
-        GameState.history.push([tSrc, tTgt]);
-        showMoveCnt();
-        GameState.activeDisk.element.style.transform = ev.target.style.transform;
-    }); 
-        
+        const minW =  Math.min(...GameState.towers[getXY(w).x]);
+        if (w === minW) drg.setAttribute('draggable', true) 
+        else drg.setAttribute('draggable', false);
+    }   
 };
 
-function handleDragStart(drg, w) {
-    let towers = GameState.towers;
-    GameState.activeDisk = getDiskByID(`d-${w}`);
-    log(GameState.activeDisk)
-    drg.classList.add('dragging');
-    const {x, y} = getXY(w);
-    // log(x,y);
-    towers.forEach((t, i) => {
-        const maxW = (t.length > 0) ? t[t.length-1] : maxDisk+10;
-        if (i !== x && w < maxW) {
-            const el = createComponent('div', field, ['hint-disk', `disk-${w}`], `h-${i}`);
-            // el.style.transform = `translate(calc(${i-1}*(50vw - (100vw/6))), calc(${maxDisk - t.length}*8vh))`;
-            el.style.transform = aliasTranslate(i, maxDisk - t.length);
-            el.addEventListener('dragover', (ev) => {
-                ev.preventDefault();
+function addDragListeners(element) {
+    // check if drag s legal and show possible landings (hints)
+    element.addEventListener('dragstart', (event) => {
+        const w = 1 * event.target.id.slice(-1);
+        GameState.activeDisk = getDiskByID(`d-${w}`);
+        const x = GameState.activeDisk.pos.x;
+        const tower = GameState.towers[x];
+        // if dragging disk is currently at the top of its tower
+        if (w == tower[tower.length - 1]) {
+            event.target.classList.add('dragging');
+            GameState.towers.forEach((tower, i) => {
+                // check if each of two other towers has bigger disks at the top 
+                const maxW = (tower.length > 0) ? tower[tower.length-1] : maxDisk+100;
+                if (i !== x && w < maxW) {
+                    // creating landing zones, as targets at 'drop' eventListener
+                    const landingZone = createComponent('div', field, ['hint-disk', `disk-${w}`], `h-${i}`);
+                    landingZone.style.transform = aliasTranslate(i, maxDisk - tower.length);
+                    landingZone.addEventListener('dragover', (ev) => {
+                        ev.preventDefault();
+                    });
+                };
             });
-        }
-    })
+        };
+    });
+    // remove dragging class from active Disk and landing Zones
+    element.addEventListener('dragend', (event) => {
+        event.target.classList.remove('dragging'); 
+        [...document.querySelectorAll('.hint-disk')].forEach(el => field.removeChild(el));
+    });
+    // successful drop handling
+    element.addEventListener('drop', (event) => {
+        const tSrc = GameState.activeDisk.pos.x;
+        const tTgt = 1 * event.target.id.slice(-1);
+        GameState.towers[tSrc].pop();
+        // disk at Target tower should become NOT draggable
+        const notDrg = Math.min(...GameState.towers[tTgt]);
+        if (notDrg < maxDisk + 1)document.getElementById(`d-${notDrg}`).setAttribute('draggable', false);
+        GameState.towers[tTgt].push(GameState.activeDisk.weight);
+        GameState.history.push([tSrc, tTgt]);
+        // disk at Source tower should become YES draggable
+        const yesDrg = Math.min(...GameState.towers[tSrc]);
+        if (yesDrg < maxDisk + 1) document.getElementById(`d-${yesDrg}`).setAttribute('draggable', true);
+        // actually reposition active Disk to the new tower
+        GameState.activeDisk.element.style.transform = event.target.style.transform;
+        showMoveCnt();
+    }); 
 }
 
 // Repositioning Element via CSS-animation
@@ -95,7 +86,6 @@ function animateElementMove(x0, y0, x6, y6) {
     root.style.setProperty('--x6', `${x6 - 1}`);
     root.style.setProperty('--y6', `${y6}`);
     el.addEventListener('animationend', () => {
-        // el.style.transform = `translate(calc(${x6-1}*(50vw - (100vw/6))), calc(${y6}*8vh))`;
         el.style.transform = aliasTranslate(x6, y6);
         el.classList.remove(elClass);
     })
@@ -104,7 +94,6 @@ function animateElementMove(x0, y0, x6, y6) {
 // show one Disk reposition animation "over-top"
 function animateOneMove([tSrc, tTgt]) {
     // Select active Disc
-    // const topDiskAtTower = GameState.towers[tSrc].length;
     const freePositionAtTower = (tower) => GameState.towers[tower].length;
     if (freePositionAtTower(tSrc) > 0)
         GameState.activeDisk = getDiskByID(`d-${GameState.towers[tSrc][freePositionAtTower(tSrc) - 1]}`);
@@ -112,11 +101,12 @@ function animateOneMove([tSrc, tTgt]) {
     let y0 = GameState.activeDisk.pos.y;
     let x6 = tTgt;
     let y6 = maxDisk - freePositionAtTower(tTgt);
-    // updating TOWERS
+    // updating TOWERS - move disk W from tSrc to tTgt array
     GameState.towers[tSrc].pop();
     GameState.towers[tTgt].push(GameState.activeDisk.weight);
     animateElementMove(x0, y0, x6, y6);
-    GameState.activeDisk.pos = {x : x6, y : y6};
+    // log(GameState.activeDisk)
+    // GameState.activeDisk.pos = {x : x6, y : y6}; ????? unnecessary
 }
 
 // move all disks simultaneously at round start
@@ -124,10 +114,8 @@ function repositionAllDisks(towersSrc, towersTgt) {
     for (let weight = maxDisk; weight > maxDisk - GameState.numDisk; weight--) {
         let { x : x0, y : y0 } = getXY(weight, towersSrc);
         let { x : x6, y : y6 } = getXY(weight, towersTgt);
-        // log(weight, ':', x0, y0, x6, y6);
         const el = document.getElementById(`d-${weight}`);
         el.animate([ 
-            // { transform :`translate(calc(${x0-1}*(50vw - (100vw/6))), calc(${y0}*8vh)` },
             { transform : aliasTranslate(x0, y0) },
             { transform : aliasTranslate(x6, y6) }
         ], GameState.animationDelay/2);
@@ -166,7 +154,7 @@ function showAnimationDelay() {
     displayDelay.innerHTML = res[GameState.animationDelay];
 };
 
-// changing animation speed (delay): double orr half
+// changing animation speed (delay): double or half
 function changeDelay(sign) {
     GameState.animationDelay = (sign >= 0)
         ? (GameState.animationDelay < 2000) ? GameState.animationDelay * 2 : GameState.animationDelay
@@ -188,10 +176,10 @@ function getDiskByID(id) {
     return { 'weight' : weight, 'pos': getXY(weight), 'element' : element};
 };
 
-// Start of Each new round
+// Start of Each new round with new Disks starting positions
 function restart(rnd = 'rnd') {
     GameState.solvingAll = false;
-    // clearing history array;
+    // clear history array;
     GameState.history = [];
     // reset animation speed;
     GameState.animationDelay = animationNorm;
@@ -204,20 +192,17 @@ function restart(rnd = 'rnd') {
         const el = document.getElementById(`d-${weight}`)
         // add disks if new numDisk is bigger than previous
         if (weight > maxDisk - GameState.numDisk && !el) {
-            createComponent('div', field, ['disk', `disk-${weight}`], `d-${weight}`);
+            createComponent('div', field, ['disk', `disk-${weight}`], `d-${weight}`, `<p>${weight}</p>` );
             GameState.towers[0].push(weight);
-        // else remove disks from previous round should
+        // else remove redundant disks from previous round
         } else if (weight <= maxDisk - GameState.numDisk && el) { 
             el.remove();    
         }
     }
 
-    const oldTowers = JSON.parse(JSON.stringify(GameState.towers));
+    const oldTowers = copyArray(GameState.towers);
     // create new Disks position at the field
     GameState.towers = shuffleDisks(GameState.numDisk, rnd);
-    // GameState.towers = (rnd === 'rnd') 
-    //     ? randomizeDisks(GameState.numDisk)
-    //     : normalizeDisks(GameState.numDisk);
     // position Disks at the field according to new Towers array
     repositionAllDisks(oldTowers, GameState.towers);
     // Calculate Instructions to solve the puzzle with new Disks position
@@ -227,10 +212,18 @@ function restart(rnd = 'rnd') {
 
 // - - - END OF FUNCTIONS BLOCK - - -
 
+// Game constants
 const maxDisk = 8;
 const animationNorm = 500;
 const SourceTower = 0;
 const TargetTower = 2;
+
+// DOM variables
+const body = document.body;
+const container = createComponent('div', body, ['container']);
+const root = document.querySelector(':root');
+// variable pointer to current Parent Element to append or remove new elements
+let parentElement = container;
 
 const GameState = {
     towers : [[], [], []], // three arrays representing 3 Towers of Hanoi
@@ -240,24 +233,29 @@ const GameState = {
     animationDelay : animationNorm,
     animationInProgress : false,
     solvingAll : false,
-    manual: true,
+    manual: false,
     activeDisk : {
         weight: maxDisk,
         pos : {'x': 0, 'y': 0},
         element : '',
     }
 }
- 
-// indication of current Parent Element to append or remove new elements
-let parentElement = container;
-// Top Menu
-const topMenu = createComponent('div', parentElement, ['menu', 'top-menu'] );
-// Game Field
-const field = createComponent('div', parentElement, ['field']);
-// Bottom Menu
-const bottomMenu = createComponent('div', parentElement, ['menu', 'bottom-menu']);
 
-// TOP - MENU BUTTONS
+const topMenu = createComponent('div', parentElement, ['menu', 'top-menu'] );
+const field = createComponent('div', parentElement, ['field']);
+const bottomMenu = createComponent('div', parentElement, ['menu', 'bottom-menu']);
+// add Event Listeners for Drag & Drop
+addDragListeners(field);
+// Event Listeners for Animation purpose
+field.addEventListener('animationstart', () => {
+    GameState.animationInProgress = true;
+});
+field.addEventListener('animationend', () => {
+    GameState.animationInProgress = false;
+    if (GameState.solvingAll) goForward();
+});
+
+// - - - - - TOP - MENU BUTTONS
 parentElement = topMenu;
 
 // switch between Auto and Manual solving
@@ -268,7 +266,6 @@ btnManual.addEventListener('click', () => {
     if (GameState.manual) ManDM();
     else autoDM();
     btnManual.innerHTML = (GameState.manual) ? 'Man' : 'Auto';
-    
 });
 
 // input for number of Disks for the next round
@@ -290,8 +287,9 @@ btnGoBack.addEventListener('click', goBack);
 // Display number of Moves made
 const displayCounter = createComponent('div', parentElement, ['btn'], 'display-counter', '0');
 
-// Bottom-MENU Buttons
+// - - - - - Bottom-MENU Buttons
 parentElement = bottomMenu;
+
 // INCREASE Animation delay btn
 const btnIncDelay = createComponent('button', parentElement, ['btn'], 'inc-del', '---');
 btnIncDelay.addEventListener('click', () => changeDelay(+1));
@@ -315,14 +313,8 @@ btnForward.addEventListener('click', () => {
 const btnStop = createComponent('button', parentElement, ['btn'], 'btn-stop', '[_]');
 btnStop.addEventListener('click', () => GameState.solvingAll = false );
 
-// Event Listeners for Animation purpose
-field.addEventListener('animationstart', () => {
-    GameState.animationInProgress = true;
-});
-field.addEventListener('animationend', () => {
-    GameState.animationInProgress = false;
-    if (GameState.solvingAll) goForward();
-});
 
-// first round starting from tower 0
-restart(0);
+
+
+// first round starts from tower 0
+restart(SourceTower);

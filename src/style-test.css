@@ -23,8 +23,14 @@ body {
     background-color: var(--bgd-color);
 }
 
-div {
+div, button {
     color: var(--prm-color);
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 }
 
 .container {
@@ -61,12 +67,21 @@ div {
 }
 
 .disk {
-    background: linear-gradient(0deg, var(--color-sec), var(--color-prm), var(--color-sec));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(0deg, var(--color-sec), var(--color-prm) 40% 60%, var(--color-sec));
     border-radius: 3.5vmin;
     height: 8vh;
     position: absolute;
     transition: 0s;
     margin: auto;
+}
+.disk > p {
+    font-size: 3.5vh;
+    font-weight: 900;
+    font-family: 'Courier New', Courier, monospace;
+    color: #fffc;
 }
 
 .hint-disk {
@@ -88,6 +103,7 @@ div {
 .disk-1 { width: calc(100vw/3 - 7*3.5vw); --color-prm: #faa; --color-sec: #faa8; }
 
 .btn {
+    color: var(--bgd-color);
     min-width: 10vh;
     min-height: 10vh;
     border-radius: 50%;

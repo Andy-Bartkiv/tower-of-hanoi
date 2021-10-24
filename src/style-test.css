@@ -103,11 +103,14 @@ div, button {
 .disk-1 { width: calc(100vw/3 - 7*3.5vw); --color-prm: #faa; --color-sec: #faa8; }
 
 .btn {
-    color: var(--bgd-color);
     min-width: 10vh;
     min-height: 10vh;
     border-radius: 50%;
     font-weight: 700;
+}
+
+button {
+    color: var(--bgd-color);
 }
 
 .input {
@@ -138,3 +141,5 @@ div, button {
       /* box-shadow:
         0 0 5vmin 1vmin var(--color-prm); */
   }
+
+  /* PANELS for Bottom menu */

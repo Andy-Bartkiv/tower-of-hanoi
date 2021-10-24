@@ -302,18 +302,20 @@ btnDecDelay.addEventListener('click', () => changeDelay(-1));
 // FORWARD 1 step button
 const btnOneStep = createComponent('button', parentElement, ['btn'], 'btn-one-step', 'A >');
 btnOneStep.addEventListener('click', goForward);
+// btn to STOP solving puzzle
+const btnStop = createComponent('button', parentElement, ['btn'], 'btn-stop', '[_]');
+btnStop.addEventListener('click', () => GameState.solvingAll = false );
 // SOLVE puzzle to the end
 const btnForward = createComponent('button', parentElement, ['btn'], 'btn-forward', '>>>');
-// btnForward.addEventListener('click', startSolving);
 btnForward.addEventListener('click', () => {
     GameState.solvingAll = true;
     goForward();
 });
-// btn to STOP solving puzzle
-const btnStop = createComponent('button', parentElement, ['btn'], 'btn-stop', '[_]');
-btnStop.addEventListener('click', () => GameState.solvingAll = false );
 
 
+// const anotherMenu = createComponent('div', container, ['menu', 'panel-menu'], 'NEW MENU');
+
+// const humanPanel = createComponent('div', anotherMenu, ['panel', 'main'], 'Human');
 
 
 // first round starts from tower 0

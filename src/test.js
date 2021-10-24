@@ -1,6 +1,7 @@
-import createComponent from './handling-dom';
-import calcTowerBuild from './recursive';
-import shuffleDisks from './shuffle';
+import createComponent from './modules/handling-dom';
+import calcTowerBuild from './modules/recursive';
+import shuffleDisks from './modules/shuffle';
+import mobileAndTabletCheck from './modules/mobile-and-tablet-check'
 import './style-test.css';
 
 // service functions
@@ -178,6 +179,10 @@ function getDiskByID(id) {
 
 // Start of Each new round with new Disks starting positions
 function restart(rnd = 'rnd') {
+
+    const isMobile = (mobileAndTabletCheck()) ? 'Mobile or Tablet' : 'Desktop';
+    log(isMobile);
+
     GameState.solvingAll = false;
     // clear history array;
     GameState.history = [];
@@ -320,3 +325,5 @@ btnForward.addEventListener('click', () => {
 
 // first round starts from tower 0
 restart(SourceTower);
+
+

@@ -120,23 +120,23 @@ eval("\n\n/* istanbul ignore next  */\nfunction styleTagTransform(css, styleElem
 
 /***/ }),
 
-/***/ "./src/handling-dom.js":
-/*!*****************************!*\
-  !*** ./src/handling-dom.js ***!
-  \*****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ createComponent)\n/* harmony export */ });\nfunction createComponent(elType, elParent = 'document.body', elClass = [], elID = '', elContent = '') {\r\n    const el = document.createElement(elType);\r\n    elClass.forEach(cls => el.classList.add(cls));\r\n    if (elID !== '') el.id = elID;\r\n    el.innerHTML = elContent;\r\n    if (elParent) elParent.appendChild(el);\r\n    return el;\r\n}\n\n//# sourceURL=webpack://tower-of-hanoi/./src/handling-dom.js?");
-
-/***/ }),
-
 /***/ "./src/index.js":
 /*!**********************!*\
   !*** ./src/index.js ***!
   \**********************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _style_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style.css */ \"./src/style.css\");\n/* harmony import */ var _handling_dom_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handling-dom.js */ \"./src/handling-dom.js\");\nconsole.log('Tower of Hanoi is running.');\r\n\r\n\r\n\r\n\r\nconst log = console.log;\r\nconst body = document.body;\r\n// log(body);\r\n\r\nconst cont = (0,_handling_dom_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"])('div', body,['container']);\r\n(0,_handling_dom_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"])('div', cont, ['label'], '', 'UNDER CONSTRUCTION');\r\n(0,_handling_dom_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"])('div', cont, ['link'], '', '<a href=\"test.html\">TEST</a>');\n\n//# sourceURL=webpack://tower-of-hanoi/./src/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _style_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style.css */ \"./src/style.css\");\n/* harmony import */ var _modules_handling_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/handling-dom */ \"./src/modules/handling-dom.js\");\nconsole.log('Tower of Hanoi is running.');\r\n\r\n\r\n\r\n\r\nconst log = console.log;\r\nconst body = document.body;\r\n// log(body);\r\n\r\nconst cont = (0,_modules_handling_dom__WEBPACK_IMPORTED_MODULE_1__[\"default\"])('div', body,['container']);\r\n(0,_modules_handling_dom__WEBPACK_IMPORTED_MODULE_1__[\"default\"])('div', cont, ['label'], '', 'UNDER CONSTRUCTION');\r\n(0,_modules_handling_dom__WEBPACK_IMPORTED_MODULE_1__[\"default\"])('div', cont, ['link'], '', '<a href=\"test.html\">TEST</a>');\n\n//# sourceURL=webpack://tower-of-hanoi/./src/index.js?");
+
+/***/ }),
+
+/***/ "./src/modules/handling-dom.js":
+/*!*************************************!*\
+  !*** ./src/modules/handling-dom.js ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ createComponent)\n/* harmony export */ });\nfunction createComponent(elType, elParent = 'document.body', elClass = [], elID = '', elContent = '') {\r\n    const el = document.createElement(elType);\r\n    elClass.forEach(cls => el.classList.add(cls));\r\n    if (elID !== '') el.id = elID;\r\n    el.innerHTML = elContent;\r\n    if (elParent) elParent.appendChild(el);\r\n    return el;\r\n}\n\n//# sourceURL=webpack://tower-of-hanoi/./src/modules/handling-dom.js?");
 
 /***/ }),
 

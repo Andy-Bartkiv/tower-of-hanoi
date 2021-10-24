@@ -1,7 +1,7 @@
 console.log('Tower of Hanoi is running.');
 
 import './style.css';
-import createComponent from './handling-dom.js'
+import createComponent from './modules/handling-dom'
 
 const log = console.log;
 const body = document.body;

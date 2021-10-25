@@ -27,6 +27,7 @@
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
-    "firebase": "^9.0.2"
+    "firebase": "^9.0.2",
+    "material-icons": "^1.10.0"
   }
 }

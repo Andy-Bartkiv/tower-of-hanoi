@@ -3,12 +3,21 @@ import calcTowerBuild from './modules/recursive';
 import shuffleDisks from './modules/shuffle';
 import mobileAndTabletCheck from './modules/mobile-and-tablet-check'
 import './style-test.css';
+import 'material-icons/iconfont/filled.css';
 
 // service functions
 const log = console.log;
 const copyArray = (arr) => JSON.parse(JSON.stringify(arr));
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const aliasTranslate = (x,y) => `translate(calc(${x-1}*(50vw - (100vw/6))), calc(${y}*8vh))`;
+
+function switchAutoManual() {
+    GameState.manual = !GameState.manual;
+    log('changing Mode')
+    if (GameState.manual) ManDM();
+    else autoDM();
+    // btnManual.innerHTML = (GameState.manual) ? 'Man' : 'Auto';
+}
 
 function autoDM() {
     log('auto');
@@ -147,7 +156,9 @@ function goBack() {
 };
 
 function showMoveCnt() {
+    displayCounter.classList.toggle('bright');
     displayCounter.innerHTML = GameState.history.length;
+    sleep(500).then(() => displayCounter.classList.toggle('bright'));
 };
 
 function showAnimationDelay() {
@@ -191,7 +202,7 @@ function restart(rnd = 'rnd') {
     root.style.setProperty('--anim-delay', `${GameState.animationDelay/1000}s`);
     showAnimationDelay();
     // read number of Disks from input field
-    GameState.numDisk = numberDisks.value;
+    // GameState.numDisk = numberDisks.value;
     // update new disks amount
     for (let weight = maxDisk; weight > maxDisk - 8; weight--) {
         const el = document.getElementById(`d-${weight}`)
@@ -213,6 +224,10 @@ function restart(rnd = 'rnd') {
     // Calculate Instructions to solve the puzzle with new Disks position
     GameState.instructions = calcTowerBuild(GameState.towers, TargetTower);
     showMoveCnt();
+
+    if (GameState.manual) ManDM();
+    else autoDM();
+
 };
 
 // - - - END OF FUNCTIONS BLOCK - - -
@@ -238,7 +253,7 @@ const GameState = {
     animationDelay : animationNorm,
     animationInProgress : false,
     solvingAll : false,
-    manual: false,
+    manual: true,
     activeDisk : {
         weight: maxDisk,
         pos : {'x': 0, 'y': 0},
@@ -263,64 +278,91 @@ field.addEventListener('animationend', () => {
 // - - - - - TOP - MENU BUTTONS
 parentElement = topMenu;
 
-// switch between Auto and Manual solving
-const btnManual = createComponent('button', parentElement, ['btn'], 'btn-manual', '');
-btnManual.innerHTML = (GameState.manual) ? 'Man' : 'Auto';
-btnManual.addEventListener('click', () => {
-    GameState.manual = !GameState.manual;
-    if (GameState.manual) ManDM();
-    else autoDM();
-    btnManual.innerHTML = (GameState.manual) ? 'Man' : 'Auto';
-});
+const btnGroupRestart = createComponent('div', parentElement, ['btn-group'],);
+const btnGroupMoves = createComponent('div', parentElement, ['btn-group'],);
 
-// input for number of Disks for the next round
-const numberDisks = createComponent('input', parentElement, ['input'], 'number',);
-numberDisks.type = 'number';
-numberDisks.min = '2';
-numberDisks.max = '8';
-numberDisks.value = `${GameState.numDisk}`;
-
-// Btn - RESTART-RND
-const btnRND = createComponent('button', parentElement, ['btn'], 'btn-rnd', 'RND');
-btnRND.addEventListener('click', () => { if (!GameState.animationInProgress) restart('rnd')});
+parentElement = btnGroupRestart;
 // Btn - RESTART-NORM
-const btnNorm = createComponent('button', parentElement, ['btn'], 'btn-norm', 'Norm');
-btnNorm.addEventListener('click', () => { if (!GameState.animationInProgress) restart(0)});
+const btnNorm = createComponent('div', parentElement, ['btn'], 'btn-norm', '<span class="material-icons md-vm">filter_list</span>');
+btnNorm.addEventListener('click', () => { if (!GameState.animationInProgress) restart(SourceTower)});
+// input for number of Disks for the next round
+const inp2 = createComponent('div', parentElement, ['disk-car']);
+const b0 = createComponent('div', inp2, ['btn-2'], '', '<span class="material-icons">arrow_back_ios_new</span>');
+const b1 = createComponent('div', inp2, ['display-number', 'dsp-2'], '', GameState.numDisk);
+const b2 = createComponent('div', inp2, ['btn-2'], '', '<span class="material-icons">arrow_forward_ios</span>');
+b0.addEventListener('click', () => {
+    if (GameState.numDisk > 2)  GameState.numDisk -= 1;
+    b1.innerHTML = GameState.numDisk;
+});
+b2.addEventListener('click', () => {
+    if (GameState.numDisk < 8)  GameState.numDisk += 1;
+    b1.innerHTML = GameState.numDisk;
+});
+// Btn - RESTART-RND
+const btnRND = createComponent('div', parentElement, ['btn'], 'btn-rnd', '<span class="material-icons">shuffle</span>');
+btnRND.addEventListener('click', () => { if (!GameState.animationInProgress) restart('rnd')});
+
+
+
+
+parentElement = btnGroupMoves;
 // Btn - Go Back One Move
-const btnGoBack = createComponent('button', parentElement, ['btn'], 'btn-go-back', '{--');
+const btnGoBack = createComponent('div', parentElement, ['btn'], 'btn-go-back', '<span class="material-icons">undo</span>');
 btnGoBack.addEventListener('click', goBack);
 // Display number of Moves made
-const displayCounter = createComponent('div', parentElement, ['btn'], 'display-counter', '0');
+const displayCounter = createComponent('div', parentElement, ['display-number'], 'display-counter', '0');
+
+
+//  - - - BOTTOM MENU slider with buttons 
+const humanPanel = createComponent('div', bottomMenu, ['panel', 'main'], 'p-0');
+const compPanel = createComponent('div', bottomMenu, ['panel'], 'p-1');
+
+let contextHPText = 'The objective of the puzzle is to move the entire stack to the last tower, obeying the following rules:<br>';
+contextHPText += '1. Take the upper disk from one of the stacks and place it on top of another stack or on an empty tower.<br>';
+contextHPText += '2. No disk may be placed on top of a disk that is smaller than itself. Only one disk may be moved at a time.';
+// contextHPText += 'Only one disk may be moved at a time.';
+const bookmarkHP = createComponent('div', humanPanel, ['bookmark'], '', '<span class="material-icons md-2rem">person</span>');
+const contextHP = createComponent('div', humanPanel, ['context'], '', contextHPText);
+const contextCP = createComponent('div', compPanel, ['context']);
+const bookmarkCP = createComponent('div', compPanel, ['bookmark'], '', '<span class="material-icons md-2rem">computer</span>');
+
+// Event listeners for Manual / Auto mode switch and slider animation
+[...document.querySelectorAll('.bookmark')].forEach(el => 
+    el.addEventListener('click', () => {
+        [...document.querySelectorAll('.panel')].forEach(panel => 
+            panel.classList.toggle('main'));
+        switchAutoManual();
+    })
+);
 
 // - - - - - Bottom-MENU Buttons
-parentElement = bottomMenu;
+parentElement = contextCP;
+const btnGroupSpeed = createComponent('div', parentElement, ['btn-group'],);
+const btnGroupControls = createComponent('div', parentElement, ['btn-group'],);
 
+parentElement = btnGroupSpeed;
 // INCREASE Animation delay btn
-const btnIncDelay = createComponent('button', parentElement, ['btn'], 'inc-del', '---');
+const btnIncDelay = createComponent('div', parentElement, ['btn'], 'inc-del', '<span class="material-icons">remove</span>');
 btnIncDelay.addEventListener('click', () => changeDelay(+1));
 // Display Animation Speed
-const displayDelay = createComponent('div', parentElement, ['btn'], 'display-delay', `1 x`);
+const displayDelay = createComponent('div', parentElement, ['display-number'], 'display-delay', `1 x`);
 // Decrease Animation delay btn
-const btnDecDelay = createComponent('button', parentElement, ['btn'], 'inc-del', '+++');
+const btnDecDelay = createComponent('div', parentElement, ['btn'], 'dec-del', '<span class="material-icons">add</span>');
 btnDecDelay.addEventListener('click', () => changeDelay(-1));
 
+parentElement = btnGroupControls;
 // FORWARD 1 step button
-const btnOneStep = createComponent('button', parentElement, ['btn'], 'btn-one-step', 'A >');
+const btnOneStep = createComponent('div', parentElement, ['btn'], 'btn-one-step', '<span class="material-icons"> skip_next</span>');
 btnOneStep.addEventListener('click', goForward);
 // btn to STOP solving puzzle
-const btnStop = createComponent('button', parentElement, ['btn'], 'btn-stop', '[_]');
+const btnStop = createComponent('div', parentElement, ['btn'], 'btn-stop', '<span class="material-icons">stop</span>');
 btnStop.addEventListener('click', () => GameState.solvingAll = false );
 // SOLVE puzzle to the end
-const btnForward = createComponent('button', parentElement, ['btn'], 'btn-forward', '>>>');
+const btnForward = createComponent('div', parentElement, ['btn'], 'btn-forward', '<span class="material-icons">fast_forward</span>');
 btnForward.addEventListener('click', () => {
     GameState.solvingAll = true;
     goForward();
 });
-
-
-// const anotherMenu = createComponent('div', container, ['menu', 'panel-menu'], 'NEW MENU');
-
-// const humanPanel = createComponent('div', anotherMenu, ['panel', 'main'], 'Human');
 
 
 // first round starts from tower 0

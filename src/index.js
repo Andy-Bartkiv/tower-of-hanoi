@@ -156,12 +156,14 @@ function goBack() {
 };
 
 function showMoveCnt() {
+    displayCounter.classList.add('highlight');
     displayCounter.innerHTML = GameState.history.length;
+    sleep(GameState.animationDelay).then(() => displayCounter.classList.remove('highlight'));
 };
 
 function showAnimationDelay() {
-    let res = { 2000:'1/4x', 1000:'1/2x', 500:'1 x', 250:'2 x', 125:'4 x' };
-    displayDelay.innerHTML = res[GameState.animationDelay];
+    let res = { 2000:'&#188; x', 1000:'&#189; x', 500:'1 x', 250:'2 x', 125:'4 x' };
+    return res[GameState.animationDelay];
 };
 
 // changing animation speed (delay): double or half
@@ -170,7 +172,7 @@ function changeDelay(sign) {
         ? (GameState.animationDelay < 2000) ? GameState.animationDelay * 2 : GameState.animationDelay
         : (GameState.animationDelay > 125) ? GameState.animationDelay / 2 : GameState.animationDelay;
     root.style.setProperty('--anim-delay', `${GameState.animationDelay/1000}s`);
-    showAnimationDelay();
+    cc1.innerHTML = showAnimationDelay();
 };
 
 // getting position of the disc in a "towers" array
@@ -195,9 +197,7 @@ function restart(rnd = 'rnd') {
     // reset animation speed;
     GameState.animationDelay = animationNorm;
     root.style.setProperty('--anim-delay', `${GameState.animationDelay/1000}s`);
-    showAnimationDelay();
-    // read number of Disks from input field
-    // GameState.numDisk = numberDisks.value;
+    cc1.innerHTML = showAnimationDelay();
     // update new disks amount
     for (let weight = maxDisk; weight > maxDisk - 8; weight--) {
         const el = document.getElementById(`d-${weight}`)
@@ -241,7 +241,7 @@ const root = document.querySelector(':root');
 // container for Cover Img
 const contBG = createComponent('div', body, ['cont-bg']);
 contBG.addEventListener('click', () => contBG.classList.add('start'));
-setTimeout(() => contBG.classList.add('start'), 1000);
+sleep(1000).then(() => contBG.classList.add('start'))
 
 const GameState = {
     towers : [[], [], []], // three arrays representing 3 Towers of Hanoi
@@ -280,13 +280,19 @@ field.addEventListener('animationend', () => {
 parentElement = topMenu;
 
 const btnGroupRestart = createComponent('div', parentElement, ['btn-group'],);
+const btnGroupDisks = createComponent('div', parentElement, ['btn-group'],);
 const btnGroupMoves = createComponent('div', parentElement, ['btn-group'],);
 
 parentElement = btnGroupRestart;
 // Btn - RESTART-NORM
 const btnNorm = createComponent('div', parentElement, ['btn'], 'btn-norm', '<span class="material-icons md-vm">filter_list</span>');
 btnNorm.addEventListener('click', () => { if (!GameState.animationInProgress) restart(SourceTower)});
-// input for number of Disks for the next round
+// Btn - RESTART-RND
+const btnRND = createComponent('div', parentElement, ['btn'], 'btn-rnd', '<span class="material-icons">shuffle</span>');
+btnRND.addEventListener('click', () => { if (!GameState.animationInProgress) restart('rnd')});
+
+parentElement = btnGroupDisks;
+// input & display number of Disks for the next round
 const inp2 = createComponent('div', parentElement, ['disk-car']);
 const b0 = createComponent('div', inp2, ['btn-2'], '', '<span class="material-icons">arrow_back_ios_new</span>');
 const b1 = createComponent('div', inp2, ['display-number', 'dsp-2'], 'dsp-disk-num', GameState.numDisk);
@@ -299,9 +305,6 @@ b2.addEventListener('click', () => {
     if (GameState.numDisk < 8)  GameState.numDisk += 1;
     b1.innerHTML = GameState.numDisk;
 });
-// Btn - RESTART-RND
-const btnRND = createComponent('div', parentElement, ['btn'], 'btn-rnd', '<span class="material-icons">shuffle</span>');
-btnRND.addEventListener('click', () => { if (!GameState.animationInProgress) restart('rnd')});
 
 parentElement = btnGroupMoves;
 // Btn - Go Back One Move
@@ -309,7 +312,6 @@ const btnGoBack = createComponent('div', parentElement, ['btn'], 'btn-go-back', 
 btnGoBack.addEventListener('click', goBack);
 // Display number of Moves made
 const displayCounter = createComponent('div', parentElement, ['display-number'], 'display-counter', '0');
-
 
 //  - - - BOTTOM MENU slider with buttons 
 const humanPanel = createComponent('div', bottomMenu, ['panel', 'main'], 'p-0');
@@ -335,18 +337,18 @@ const bookmarkCP = createComponent('div', compPanel, ['bookmark'], '', '<span cl
 
 // - - - - - Bottom-MENU Buttons
 parentElement = contextCP;
-const btnGroupSpeed = createComponent('div', parentElement, ['btn-group'],);
-const btnGroupControls = createComponent('div', parentElement, ['btn-group'],);
+const btnGroupEmpty = createComponent('div', parentElement, ['btn-group', 'btn-group-0'],);
+const btnGroupControls = createComponent('div', parentElement, ['btn-group', 'btn-group-1'],);
+const btnGroupSpeed = createComponent('div', parentElement, ['btn-group', 'btn-group-1'],);
 
 parentElement = btnGroupSpeed;
-// INCREASE Animation delay btn
-const btnIncDelay = createComponent('div', parentElement, ['btn'], 'inc-del', '<span class="material-icons">remove</span>');
-btnIncDelay.addEventListener('click', () => changeDelay(+1));
-// Display Animation Speed
-const displayDelay = createComponent('div', parentElement, ['display-number'], 'display-delay', `1 x`);
-// Decrease Animation delay btn
-const btnDecDelay = createComponent('div', parentElement, ['btn'], 'dec-del', '<span class="material-icons">add</span>');
-btnDecDelay.addEventListener('click', () => changeDelay(-1));
+const inp3 = createComponent('div', parentElement, ['disk-car']);
+const c0 = createComponent('div', inp3, ['btn-2'], '', '<span class="material-icons">remove</span>');
+const cc1 = createComponent('div', inp3, ['display-number', 'dsp-2', 'dsp-3'], 'dsp-anim-speed', showAnimationDelay());
+const c2 = createComponent('div', inp3, ['btn-2'], '', '<span class="material-icons">add</span>');
+c0.addEventListener('click', () => changeDelay(+1));
+c2.addEventListener('click', () => changeDelay(-1));
+
 
 parentElement = btnGroupControls;
 // FORWARD 1 step button

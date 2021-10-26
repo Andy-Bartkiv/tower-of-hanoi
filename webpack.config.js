@@ -5,7 +5,7 @@ module.exports = {
   mode: 'development',
   entry: {
     index: './src/index.js',
-    test: './src/test.js'
+    // test: './src/test.js'
   },
   output: {
     filename: '[name].bundle.js',
@@ -20,11 +20,11 @@ module.exports = {
       title: 'Tower of Hanoi',
       chunks : ['index']
     }),
-    new HtmlWebpackPlugin({  // Also generate a test.html
-      filename: 'test.html',
-      title: 'testing TOH',
-      chunks : ['test']
-    })
+    // new HtmlWebpackPlugin({
+    //   filename: 'test.html',
+    //   title: 'testing TOH',
+    //   chunks : ['test']
+    // })
   ],
   module: {
     rules: [

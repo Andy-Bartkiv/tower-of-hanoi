@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #333;
+}
+
+.container {
+    width: 100vw;
+    height: 100vh;
+    color: darkblue;
+    font-weight: 900;
+    display: flex;
+    justify-content: space-between;
+}
+
+.cont-bg {
+    background-image: url("../img/tower-0.png");
+    opacity: 1;
+    background-position: top 25% center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0; bottom: 0;
+    z-index: 100;
+    transition: 1s;
+}
+
+.start {
+    opacity: 0;
+    z-index: -1;
+}
+
+a {
+    text-decoration: none;
+    color: wheat;
+}
+
+a:hover {
+    color: orange;
+}

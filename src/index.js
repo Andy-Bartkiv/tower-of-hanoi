@@ -57,6 +57,12 @@ function addDragListeners(element) {
                     landingZone.addEventListener('dragover', (ev) => {
                         ev.preventDefault();
                     });
+                    landingZone.addEventListener('dragenter', (ev) => {
+                        ev.target.classList.add('highlight');
+                    });
+                    landingZone.addEventListener('dragleave', (ev) => {
+                        ev.target.classList.remove('highlight');
+                    });
                 };
             });
         };

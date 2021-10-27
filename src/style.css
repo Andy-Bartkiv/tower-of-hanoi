@@ -102,14 +102,24 @@ div {
     font-weight: 900;
     color: var(--bgd-color);
 }
+[draggable = true] {
+    cursor: grab;
+}
 
 .hint-disk {
     box-shadow:
-        inset 0 0 5vmin .1vmin var(--color-prm);
+        inset 0 0 2vmin var(--color-sec);
     border-radius: 3.5vmin;
     height: 8vh;
     position: absolute;
     margin: auto;
+}
+
+.hint-disk.highlight {
+    transition: 0s;
+    /* background-color: var(--color-prm); */
+    box-shadow:
+        inset 0 0 .25rem .1rem var(--color-prm);
 }
 
 .disk-8 { width: calc(100vw/3 - 0*3.5vw); --color-prm: #f00; --color-sec: #f008; }
@@ -184,11 +194,10 @@ div {
 
   /* DRAG AND DROP */
 
-  /* .dragging {
-      background-color: white ;
-      box-shadow:
-        0 0 5vmin 1vmin var(--color-prm);
-  } */
+  .dragging {
+      /* background-color: var(--bgd-color); */
+    opacity: .35; 
+  }
 
   /* PANELS for Bottom menu */
 
@@ -277,7 +286,7 @@ div {
     border: .05rem solid var(--color-middle-green);
     border-radius: .25rem;
     box-shadow:
-        inset 0 0 .2rem .1rem var(--color-middle-green);
+        inset 0 0 .2rem var(--color-middle-green);
     font-size: .45rem;
     font-weight: 900;
     transition: .25s;
@@ -288,7 +297,7 @@ div {
     color: var(--color-bright-green);
     border: .05rem solid var(--color-bright-green);
     box-shadow:
-        inset 0 0 .2rem .1rem var(--color-bright-green);
+        inset 0 0 .2rem .05rem var(--color-bright-green);
 }
 
 .disk-car {

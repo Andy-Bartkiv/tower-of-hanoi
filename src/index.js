@@ -21,9 +21,10 @@ function switchAutoManual() {
 // auto mode handle
 function autoDM() {
     GameState.instructions = calcTowerBuild(GameState.towers, TargetTower);
-    for (let w = maxDisk; w > maxDisk - GameState.numDisk; w--) {
+    for (let w = maxDisk; w > maxDisk - GameState.numDisk; w--)
         document.getElementById(`d-${w}`).setAttribute('draggable', false);
-    }   
+    // reset Solving Progress Indicator if necessary;
+    handleStopBtn();
 }
 
 // manual mode handle
@@ -36,7 +37,13 @@ function ManDM() {
     }   
 };
 
-// adding 3 Drag & Drop API listeners (dragstart, dragend, drop)
+function handleStopBtn() {
+    GameState.solvingAll = false;
+    if (GameState.instructions.length > 0) GameState.solvingIndication.grad = 0;
+    updateSolvingIndicator();
+}
+
+// adding 3 Drag&Drop API listeners (dragstart, dragend, drop)
 function addDragListeners(element) {
     // check if drag s legal and show possible landings (hints)
     element.addEventListener('dragstart', (event) => {
@@ -91,6 +98,10 @@ function addDragListeners(element) {
     }); 
 }
 
+function updateSolvingIndicator() {
+    btnCircle.style.setProperty('--deg-deg', `${GameState.solvingIndication.grad}deg`)
+}
+
 // Repositioning Element via CSS-animation
 function animateElementMove(x0, y0, x6, y6) {
     const el = GameState.activeDisk.element;
@@ -104,6 +115,7 @@ function animateElementMove(x0, y0, x6, y6) {
     el.addEventListener('animationend', () => {
         el.style.transform = aliasTranslate(x6, y6);
         el.classList.remove(elClass);
+        updateSolvingIndicator();
     })
 }
 
@@ -146,9 +158,13 @@ function goForward() {
 		animateOneMove(move);
         GameState.history.push(move);
         showMoveCnt();
+        if (GameState.solvingAll) {
+            GameState.solvingIndication.grad += GameState.solvingIndication.step;
+        }
     }
-    if (GameState.instructions.length === 0)
+    if (GameState.instructions.length === 0) {
         GameState.solvingAll = false;
+    }
 };
 
 // go back one move
@@ -158,6 +174,8 @@ function goBack() {
 		animateOneMove([move[1], move[0]]);
         GameState.instructions.unshift(move);
         showMoveCnt();
+        GameState.solvingIndication.grad = 0;
+        updateSolvingIndicator();
     }
 };
 
@@ -200,6 +218,9 @@ function restart(rnd = 'rnd') {
     GameState.solvingAll = false;
     // clear history array;
     GameState.history = [];
+    // reset solving indicator
+    GameState.solvingIndication.grad = 0;
+    updateSolvingIndicator();
     // reset animation speed;
     GameState.animationDelay = animationNorm;
     root.style.setProperty('--anim-delay', `${GameState.animationDelay/1000}s`);
@@ -257,6 +278,7 @@ const GameState = {
     animationDelay : animationNorm,
     animationInProgress : false,
     solvingAll : false,
+    solvingIndication :  { grad : 0, step : 0 },
     manual: true,
     activeDisk : {
         weight: maxDisk,
@@ -333,13 +355,14 @@ const contextCP = createComponent('div', compPanel, ['context']);
 const bookmarkCP = createComponent('div', compPanel, ['bookmark'], '', '<span class="material-icons md-2rem">computer</span>');
 
 // Event listeners for Manual / Auto mode switch and slider animation
-[...document.querySelectorAll('.bookmark')].forEach(el => 
+[...document.querySelectorAll('.bookmark')].forEach(el => {
     el.addEventListener('click', () => {
         [...document.querySelectorAll('.panel')].forEach(panel => 
             panel.classList.toggle('main'));
+        handleStopBtn();
         switchAutoManual();
     })
-);
+});
 
 // - - - - - Bottom-MENU Buttons
 parentElement = contextCP;
@@ -361,12 +384,22 @@ parentElement = btnGroupControls;
 const btnOneStep = createComponent('div', parentElement, ['btn'], 'btn-one-step', '<span class="material-icons"> skip_next</span>');
 btnOneStep.addEventListener('click', goForward);
 // btn to STOP solving puzzle
-const btnStop = createComponent('div', parentElement, ['btn'], 'btn-stop', '<span class="material-icons">stop</span>');
-btnStop.addEventListener('click', () => GameState.solvingAll = false );
+const btnCont = createComponent('div', parentElement, ['btn-cont']);
+// Solving puzzle indication
+// const btnCircle = createComponent('div', btnCont, ['donut', 'grad-1']);
+const btnRainbow = createComponent('div', btnCont, ['donut', 'grad-rainbow']); 
+const btnCircle = createComponent('div', btnCont, ['donut', 'grad-2']);
+// STOP solving The puzzle
+const btnStop = createComponent('div', btnCont, ['btn'], 'btn-stop', '<span class="material-icons">stop</span>');
+btnStop.addEventListener('click', handleStopBtn);
+
+
 // SOLVE puzzle to the end
 const btnForward = createComponent('div', parentElement, ['btn'], 'btn-forward', '<span class="material-icons">fast_forward</span>');
 btnForward.addEventListener('click', () => {
     GameState.solvingAll = true;
+    GameState.solvingIndication.grad = 0;
+    GameState.solvingIndication.step = 360 / (GameState.instructions.length);
     goForward();
 });
 

@@ -9,6 +9,7 @@
     font-size: 8vmin;
     --anim-delay: .25s;
     --bgd-color: #1e1e1e;
+    --bgd-color-00: #1e1e1e00;
     /* --bgd-color-light: #2e2e2e; */
     --prm-color: #e1e1e1;
     /* --sec-color: #b0b0b0; */
@@ -132,8 +133,8 @@ div {
 .disk-1 { width: calc(100vw/3 - 7*3.5vw); --color-prm: #faa; --color-sec: #faa8; }
 
 .btn {
-    min-width: 8vh;
-    min-height: 8vh;
+    width: 8vh;
+    height: 8vh;
     font-weight: 700;
     /* font-size: 0.96rem; */
     cursor: pointer;
@@ -194,20 +195,12 @@ div {
 
   /* DRAG AND DROP */
 
-  .dragging {
-      /* background-color: var(--bgd-color); */
+.dragging {
+    /* background-color: var(--bgd-color); */
     opacity: .35; 
-  }
+}
 
-  /* PANELS for Bottom menu */
-
-/* .panel-menu {
-    font-size: 2.25vmin;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-} */
-
+/* PANELS for Bottom menu */
 .panel {
     outline: 1px solid var(--color-middle-green);
     display: flex;
@@ -227,11 +220,9 @@ div {
     width: 100%;
     transition: .1s;
 }
-
 .bookmark:hover {
     color: var(--color-bright-green);
 }
-
 .bookmark:active {
     color: var(--color-bright-green);
     background-color: var(--bgd-color);
@@ -271,6 +262,7 @@ div {
     flex: .33;
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: .5rem;
 }
 .btn-group-0 { flex: .26; }
@@ -357,4 +349,37 @@ div {
 
 .dsp-3 {
     min-width: 1rem;
+}
+
+.btn-cont {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 12vh;
+    width: 12vh;
+}
+
+.donut {
+    height: 12vh; width: 12vh;
+    border-radius: 50%;
+    z-index: -1;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    --deg-deg: 0deg;
+}
+
+.grad-1 {
+    --col-1: #5ac;
+    background-image: conic-gradient(var(--col-1) 0deg, var(--col-1) var(--deg-deg), var(--bgd-color) 0deg);
+}
+
+.grad-2 {
+    --col-0: var(--bgd-color-00); --col-1: var(--bgd-color);
+    background-image: conic-gradient(var(--col-0) 0deg, var(--col-0) var(--deg-deg), var(--col-1) 0deg);
+}
+.grad-rainbow {
+    height: 11vh; width: 11vh;
+    background-image: conic-gradient(#f0f, #00f, #0ff, #0f0, #ff0, #f80, #f00);
 }

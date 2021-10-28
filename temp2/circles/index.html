@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circles</title>
+
+    <style>
+			body { 
+				background: #333;
+			}
+			.cont {
+				position: relative;
+				display: flex;
+				justify-content: space-around;
+				height: 200px;
+			}
+
+				.donut {
+          opacity: 0;
+					transition: .25s;
+					display: flex;
+          justify-content: center;
+          align-items: center;
+					height: 200px;
+          width: 200px;
+					border-radius: 50%;
+				}
+
+        .inner {
+					background: #333;
+					/* border: 5px solid var(--color-1); */
+					border: 1px solid whitesmoke;
+          border-radius: 50%;
+          height: 150px;
+          width: 150px;
+					opacity: 1;
+        }
+
+				#grad-1 {
+					--color-1: #5ac;
+					--color-2: #3f94add8;
+          --deg-deg: 0deg;
+          background-image: conic-gradient(var(--color-2) 0deg, var(--color-1) var(--deg-deg), #333 0deg);
+					/* border: 5px solid var(--color-1); */
+        }
+
+				#grad-rgb {
+          background-image: conic-gradient(#f0f, #00f, #0ff, #0f0, #ff0, #f80, #f00);
+					transition: 0s;
+				}
+
+				#grad-2 {
+          --deg-deg: 0deg;
+          background-image: conic-gradient(#3330 0deg, #3330  var(--deg-deg), #333 0deg);
+          /* background-image: conic-gradient(#333 0deg, #333  calc((-1) * var(--deg-deg)), #3330 0deg); */
+					border: 5	px solid #333;
+					transition: 0s;
+				}
+				
+        .show-me {
+					opacity: 1;
+        }
+
+				#grad-3{
+					margin: 0;
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
+					transition: opacity .25s;
+					
+					/* z-index: -1; */
+					--color-1: #5ac;
+					--color-2: #3f94add8;
+          --deg-deg: 0deg;
+          background-image: conic-gradient(var(--color-1) 0deg, var(--color-1) var(--deg-deg), #333 0deg);
+					border: 5px solid var(--color-1);
+        }
+
+				#g3{
+					margin: 0;
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
+					z-index: 2;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					font-size: xx-large;
+				}
+
+        </style>
+
+</head>
+<body>
+	<div class="cont">
+		<div class = 'donut' id="grad-1">
+			<div class="inner"></div>
+		</div>
+	
+		<div class='donut' id="grad-rgb">
+			<div class="donut" id='grad-2'>
+				<div class="inner"></div>
+			</div>
+		</div>	
+	</div>
+
+	<button>SHOW ME</button>
+
+	<div class="cont">
+		<div class="inner" id='g3'>ABC</div>
+		<div class = 'donut' id="grad-3">		</div>
+	</div>
+
+    <script>
+        let gr = 0;
+        const grad1 = document.querySelector('#grad-1');
+        const grad2 = document.querySelector('#grad-2');
+        const gradRGB = document.querySelector('#grad-rgb');
+        const btn = document.querySelector('button');
+        const grad3 = document.querySelector('#grad-3');
+
+        let int = setInterval(() => {
+            gr += 360 / 256 * 2 * 2;
+            // console.log(gr);
+            grad1.style.setProperty('--deg-deg', `${gr}deg`)
+            grad2.style.setProperty('--deg-deg', `${gr}deg`)
+            grad3.style.setProperty('--deg-deg', `${gr}deg`)
+            // console.log(int);
+            if (gr >= 360) clearInterval(int);
+        }, 250);
+
+        btn.addEventListener('click', () => {
+            grad1.classList.toggle('show-me');
+            gradRGB.classList.toggle('show-me');
+            grad2.classList.toggle('show-me');
+						grad3.classList.toggle('show-me');
+
+					})
+    </script>
+</body>
+</html>

@@ -6,18 +6,14 @@
     box-sizing: border-box;
 }
 :root {
-    font-size: 8vmin;
+    font-size: 8vh;
+    font-size: min(8vh, calc(( 4vw + 4vh + 2vmin ) / 1));
     --anim-delay: .25s;
     --bgd-color: #1e1e1e;
     --bgd-color-00: #1e1e1e00;
-    /* --bgd-color-light: #2e2e2e; */
-    --prm-color: #e1e1e1;
-    /* --sec-color: #b0b0b0; */
-    /* --color-bright-green: #21f396;
-    --color-middle-green: #258457; */
     --color-bright-green: #5ac;
     --color-middle-green: #3f94add8;
-    /* Disk color variables */
+    /* Disk color variable, example for bottom Disk */
     --color-prm: #f00; --color-sec: #ff000055;
     /* Disk animation position variables */
     --x0: 0; --y0: 0; --y3: 0; --x6: 0; --y6: 0;
@@ -59,11 +55,8 @@ div {
     z-index: 100;
     transition: 1s;
 }
-
-.start {
-    opacity: 0;
-    z-index: -1;
-}
+/* hiding Starting Cover Image */
+.start { opacity: 0; z-index: -1; }
 
 .menu {
     color: var(--color-middle-green);
@@ -141,10 +134,9 @@ div {
 .disk-1 { width: calc(100vw/3 - 7*3.5vw); --color-prm: #faa; --color-sec: #faa8; }
 
 .btn {
-    width: 8vh;
-    height: 8vh;
+    width: 1rem;
+    height: 1rem;
     font-weight: 700;
-    /* font-size: 0.96rem; */
     cursor: pointer;
     color: var(--color-middle-green);
     background-color: var(--bgd-color);
@@ -163,32 +155,27 @@ div {
     color: var(--color-bright-green);
     border: .05rem solid var(--color-bright-green);
     box-shadow:
-        0 0.025rem var(--color-bright-green),
-        0 0px 0.1rem var(--color-bright-green),
-        0 0px 0.25rem var(--color-bright-green),
-        inset 0 0px 0.25rem var(--color-bright-green);
+        0 0 0.05rem var(--color-bright-green),
+        0 0 0.1rem var(--color-bright-green),
+        0 0 0.25rem var(--color-bright-green),
+        inset 0 0 0.25rem var(--color-bright-green);
 }
 
 .btn:active, .active {
     background-color: var(--color-bright-green);
     border: .05rem solid var(--color-bright-green);
     color: var(--bgd-color);
-    transform: translateY(0.04rem);
+    transform: translateY(0.05rem);
     box-shadow:
-        0 0px 0.25rem var(--color-bright-green),
-        0 0px 0.5rem var(--color-bright-green),
-        0 0px 1rem var(--color-bright-green);
-}
-
-.input {
-    max-width: 7.5vw;
-    min-height: 5vh;
+        0 0 0.25rem var(--color-bright-green),
+        0 0 0.5rem var(--color-bright-green),
+        0 0 1rem var(--color-bright-green);
 }
 
 .moving-over-top {
     background-color: var(--color-sec);
     box-shadow:
-        0 0 5vmin 1vmin var(--color-prm);
+        0 0 .5rem .125rem var(--color-prm);
     animation-name: over-top;
     animation-duration: var(--anim-delay);
     animation-timing-function: linear;
@@ -246,8 +233,6 @@ div {
 
 #p-0 .context {
     padding: 0 .25rem;
-    font-size: 2.25vmin;
-    /* font-size: min(3.15vh, calc(( 4vw + 4vh + 2vmin ) / 4.25)); */
     font-size: calc((2vw + 2vh + 1vmin)/2.25);
 }
 #p-1 .context {
@@ -260,18 +245,18 @@ div {
     padding: 0;
 }
 
-.main > .bookmark { display: none;  }
-.main > .context { display: flex; opacity: 1;}
+.main > .bookmark { display: none; }
+.main > .context { display: flex; opacity: 1; }
 
-.material-icons.md-2rem { font-size: 1em; }
 .md-vm { transform: scale(1, -1); }
+span.material-icons { font-size: .75rem; }
+span.material-icons.md-2rem { font-size: min(1.25rem, 8vw); }
 
 .btn-group {
     flex: .33;
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
-    gap: .5rem;
 }
 .btn-group-0 { flex: .26; }
 .btn-group-1 { flex: .37; }
@@ -281,13 +266,14 @@ div {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 10vh;
-    min-height: 7.5vh;
+    padding: 0 0.1rem;
+    min-width: 1rem;
+    height: 1rem;
     border: .05rem solid var(--color-middle-green);
     border-radius: .25rem;
     box-shadow:
         inset 0 0 .2rem var(--color-middle-green);
-    font-size: .45rem;
+    font-size: .5rem;
     font-weight: 900;
     transition: .25s;
 }
@@ -304,22 +290,22 @@ div {
     display: flex;
     align-items: center;
     justify-content: stretch;
-    min-height: 7.5vh;
+    height: 1rem;
     border-top: .05rem solid var(--color-middle-green);
     border-bottom: .05rem solid var(--color-middle-green);
     border-radius: .25rem;
-    font-size: .65rem;
+    /* font-size: .65rem; */
     font-weight: 900;
 }
 
 .btn-2 {
-    height: 100%;
-    min-width: 5vh;
+    height: 1rem;
+    width: .75rem;
     display: flex;
     align-items: center;
     cursor: pointer;
-    transition: 0.1s;
     border-radius: .25rem;
+    transition: 0.1s;
 }
 .btn-2:hover {
     color: var(--color-bright-green);
@@ -330,7 +316,7 @@ div {
 
 .btn-2:active {
     background-color: var(--color-bright-green);
-    border-radius: .2rem;
+    border-radius: .25rem;
     color: var(--bgd-color);
     box-shadow:
         inset 0 0 .125rem 0.125rem var(--bgd-color);
@@ -342,8 +328,8 @@ div {
 }
 
 .dsp-2 {
-    min-width: 5vh;
-    min-width: 1rem;
+    width: 1rem;
+    padding: 0;
     box-shadow: none;
     border: none;
     text-align: center;
@@ -354,22 +340,18 @@ div {
     border-right: .05rem solid var(--color-middle-green);
 }
 
-.dsp-3 {
-    min-width: 1rem;
-}
-
 .btn-cont {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 12vh;
-    width: 12vh;
+    height: 1.5rem;
+    width: 1.5rem;
 }
 
 /* - - - Auto Solving Progress Animation Donut-style - - -*/
 .donut {
-    height: 12vh; width: 12vh;
+    height: 1.5rem; width: 1.5rem;
     border-radius: 50%;
     z-index: -1;
     position: absolute;
@@ -388,6 +370,6 @@ div {
     background-image: conic-gradient(var(--col-0) 0deg, var(--col-0) var(--deg-deg), var(--col-1) 0deg);
 }
 .grad-rainbow {
-    height: 11vh; width: 11vh;
+    height: 1.4rem; width: 1.4rem;
     background-image: conic-gradient(#f0f, #00f, #0ff, #0f0, #ff0, #f80, #f00);
 }

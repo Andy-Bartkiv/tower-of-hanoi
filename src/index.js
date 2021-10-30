@@ -331,9 +331,9 @@ btnRND.addEventListener('click', () => { if (!GameState.animationInProgress) res
 parentElement = btnGroupDisks;
 // input & display number of Disks for the next round
 const inp2 = createComponent('div', parentElement, ['disk-car']);
-const b0 = createComponent('div', inp2, ['btn-2'], 'b-0', '<span class="material-icons">arrow_back_ios_new</span>');
+const b0 = createComponent('div', inp2, ['btn-2', 'left'], 'b-0', '<span class="material-icons">arrow_back_ios_new</span>');
 const b1 = createComponent('div', inp2, ['display-number', 'dsp-2'], 'dsp-disk-num', GameState.numDisk);
-const b2 = createComponent('div', inp2, ['btn-2'], 'b-2', '<span class="material-icons">arrow_forward_ios</span>');
+const b2 = createComponent('div', inp2, ['btn-2', 'right'], 'b-2', '<span class="material-icons">arrow_forward_ios</span>');
 b0.addEventListener('click', () => {
     if (GameState.numDisk > 2)  GameState.numDisk -= 1;
     b1.innerHTML = GameState.numDisk;
@@ -381,9 +381,9 @@ const btnGroupSpeed = createComponent('div', parentElement, ['btn-group', 'btn-g
 
 parentElement = btnGroupSpeed;
 const inp3 = createComponent('div', parentElement, ['disk-car']);
-const c0 = createComponent('div', inp3, ['btn-2'], '', '<span class="material-icons">remove</span>');
+const c0 = createComponent('div', inp3, ['btn-2', 'left'], '', '<span class="material-icons">remove</span>');
 const cc1 = createComponent('div', inp3, ['display-number', 'dsp-2', 'dsp-3'], 'dsp-anim-speed', showAnimationDelay());
-const c2 = createComponent('div', inp3, ['btn-2'], '', '<span class="material-icons">add</span>');
+const c2 = createComponent('div', inp3, ['btn-2', 'right'], '', '<span class="material-icons">add</span>');
 c0.addEventListener('click', () => changeDelay(+1));
 c2.addEventListener('click', () => changeDelay(-1));
 

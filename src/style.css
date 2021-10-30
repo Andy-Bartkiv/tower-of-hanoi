@@ -293,8 +293,7 @@ span.material-icons.md-2rem { font-size: min(1.25rem, 8vw); }
     height: 1rem;
     border-top: .05rem solid var(--color-middle-green);
     border-bottom: .05rem solid var(--color-middle-green);
-    border-radius: .25rem;
-    /* font-size: .65rem; */
+    border-radius: .4rem;
     font-weight: 900;
 }
 
@@ -304,7 +303,7 @@ span.material-icons.md-2rem { font-size: min(1.25rem, 8vw); }
     display: flex;
     align-items: center;
     cursor: pointer;
-    border-radius: .25rem;
+    border-radius: .5rem;
     transition: 0.1s;
 }
 .btn-2:hover {
@@ -312,19 +311,36 @@ span.material-icons.md-2rem { font-size: min(1.25rem, 8vw); }
     text-shadow:
         0 0 .25rem var(--color-bright-green),
         0 0 .5rem var(--color-bright-green);
+    border-top: .05rem solid var(--color-bright-green);
+    border-bottom: .05rem solid var(--color-bright-green);
+    box-shadow:
+        0 0 .05rem var(--color-bright-green),
+        inset 0 0 .05rem var(--color-bright-green);
+
+        /* 0 0 .5rem var(--color-bright-green); */
 }
 
 .btn-2:active {
     background-color: var(--color-bright-green);
-    border-radius: .25rem;
     color: var(--bgd-color);
+    /* background-image: radial-gradient(var(--color-bright-green) 35%, #0000 65%); */
+    border-top: .05rem solid var(--color-bright-green);
+    border-bottom: .05rem solid var(--color-bright-green);
     box-shadow:
-        inset 0 0 .125rem 0.125rem var(--bgd-color);
+        0 0 0.25rem var(--color-bright-green),
+        0 0 0.5rem var(--color-bright-green),
+        0 0 1rem var(--color-bright-green);
 }
+
+.btn-2:active.right { transform: translateX(0.05rem); }
+.btn-2:active.left { transform: translateX(-0.05rem); }
 
 .disk-car:active > .dsp-2 {
     color: var(--color-bright-green);
     transition: 0s;
+    border: .05rem solid var(--color-bright-green);
+    box-shadow:
+        inset 0 0 .2rem .05rem var(--color-bright-green);
 }
 
 .dsp-2 {
@@ -372,4 +388,6 @@ span.material-icons.md-2rem { font-size: min(1.25rem, 8vw); }
 .grad-rainbow {
     height: 1.4rem; width: 1.4rem;
     background-image: conic-gradient(#f0f, #00f, #0ff, #0f0, #ff0, #f80, #f00);
+    box-shadow: 
+        inset 0 0 .125rem .03rem var(--bgd-color);
 }

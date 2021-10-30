@@ -337,10 +337,17 @@ span.material-icons.md-2rem { font-size: min(1.25rem, 8vw); }
 
 .disk-car:active > .dsp-2 {
     color: var(--color-bright-green);
-    transition: 0s;
     border: .05rem solid var(--color-bright-green);
+    transition: 0s;
     box-shadow:
         inset 0 0 .2rem .05rem var(--color-bright-green);
+}
+
+.disk-car:active .dsp-2:active {
+    color: var(--color-middle-green);
+    border-left: .05rem solid var(--color-middle-green);
+    border-right: .05rem solid var(--color-middle-green);
+    box-shadow: none;
 }
 
 .dsp-2 {

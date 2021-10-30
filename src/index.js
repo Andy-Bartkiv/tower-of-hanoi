@@ -21,6 +21,8 @@ function switchAutoManual() {
 
 // auto mode handle
 function autoDM() {
+    // const numDiscCurrent = maxDisk + 1 - Math.min(...GameState.towers.map(t => Math.min(10, ...t)));
+    // log('?', numDiscCurrent);
     GameState.instructions = calcTowerBuild(GameState.towers, TargetTower);
     for (let w = maxDisk; w > maxDisk - GameState.numDisk; w--)
         document.getElementById(`d-${w}`).setAttribute('draggable', false);
@@ -235,6 +237,7 @@ function restart(rnd = 'rnd') {
     root.style.setProperty('--anim-delay', `${GameState.animationDelay/1000}s`);
     cc1.innerHTML = showAnimationDelay();
     // update new disks amount
+    GameState.numDisk = 1 * document.getElementById('dsp-disk-num').textContent;
     for (let weight = maxDisk; weight > maxDisk - 8; weight--) {
         const el = document.getElementById(`d-${weight}`)
         // add disks if new numDisk is bigger than previous
@@ -335,12 +338,10 @@ const b0 = createComponent('div', inp2, ['btn-2', 'left'], 'b-0', '<span class="
 const b1 = createComponent('div', inp2, ['display-number', 'dsp-2'], 'dsp-disk-num', GameState.numDisk);
 const b2 = createComponent('div', inp2, ['btn-2', 'right'], 'b-2', '<span class="material-icons">arrow_forward_ios</span>');
 b0.addEventListener('click', () => {
-    if (GameState.numDisk > 2)  GameState.numDisk -= 1;
-    b1.innerHTML = GameState.numDisk;
+    if (1*b1.textContent > 2) b1.textContent = 1*b1.textContent - 1;
 });
 b2.addEventListener('click', () => {
-    if (GameState.numDisk < 8)  GameState.numDisk += 1;
-    b1.innerHTML = GameState.numDisk;
+    if (1*b1.textContent < 8) b1.textContent = 1*b1.textContent + 1;
 });
 
 parentElement = btnGroupMoves;

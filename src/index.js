@@ -334,7 +334,7 @@ function restart(rnd = 'rnd') {
         const el = document.getElementById(`d-${weight}`)
         // add disks if new numDisk is bigger than previous
         if (weight > maxDisk - GameState.numDisk && !el) {
-            createComponent('div', field, ['disk', `disk-${weight}`], `d-${weight}`, `<p>${weight}</p>` );
+            createComponent('div', field, ['disk', `disk-${weight}`], `d-${weight}`, `${weight}` );
             GameState.towers[0].push(weight);
         // else remove redundant disks from previous round
         } else if (weight <= maxDisk - GameState.numDisk && el) { 

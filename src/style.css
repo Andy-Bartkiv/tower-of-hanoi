@@ -118,6 +118,11 @@ div {
         inset 0 0 2vmin var(--color-sec);
 }
 
+.src-disk {
+    opacity: .35;
+    box-shadow: none;
+}
+
 .hint-disk.highlight {
     transition: 0s;
     box-shadow:

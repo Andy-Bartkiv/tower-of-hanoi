@@ -18,6 +18,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Tower of Hanoi',
+      favicon: "./img/favicon.png",
       chunks : ['index']
     }),
     // new HtmlWebpackPlugin({

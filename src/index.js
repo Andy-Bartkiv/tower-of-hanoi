@@ -11,6 +11,12 @@ const copyArray = (arr) => JSON.parse(JSON.stringify(arr));
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const aliasTranslate = (x,y) => `translate(calc(${x-1}*(50vw - (100vw/6))), calc(${y}*8vh))`;
 
+function transformElementSlow(styleTransform, el) {
+    el.classList.add('drop-slow');
+    el.style.transform = styleTransform;
+    sleep(animationNorm/2)
+        .then(() => el.classList.remove('drop-slow'));
+}
 
 // switch puzzle solving mode between manual (human player) and auto (AI-recursive)
 function switchAutoManual() {
@@ -21,8 +27,6 @@ function switchAutoManual() {
 
 // auto mode handle
 function autoDM() {
-    // const numDiscCurrent = maxDisk + 1 - Math.min(...GameState.towers.map(t => Math.min(10, ...t)));
-    // log('?', numDiscCurrent);
     GameState.instructions = calcTowerBuild(GameState.towers, TargetTower);
     for (let w = maxDisk; w > maxDisk - GameState.numDisk; w--)
         document.getElementById(`d-${w}`).setAttribute('draggable', false);
@@ -52,6 +56,16 @@ function handleStopBtn() {
 
 // adding 3 Drag&Drop API listeners (dragstart, dragend, drop)
 function addDragListeners(element) {
+                                                                
+    
+    
+    
+    
+    let clone;
+    
+    
+    
+    
     // check if drag s legal and show possible landings (hints)
     element.addEventListener('dragstart', (event) => {
         const w = 1 * event.target.id.slice(-1);
@@ -60,31 +74,50 @@ function addDragListeners(element) {
         const tower = GameState.towers[x];
         // if dragging disk is currently at the top of its tower
         if (w == tower[tower.length - 1]) {
-            event.target.classList.add('dragging');
+            sleep(0) // to let browser capture drag img of a disk
+                .then(() => event.target.classList.add('dragging'));
             GameState.towers.forEach((tower, i) => {
                 // check for legal landing Zones - if each of two other towers has bigger disks at the top 
                 const maxW = (tower.length > 0) ? tower[tower.length-1] : maxDisk+100;
                 if (i !== x && w < maxW) {
-                    // creating landing Towers, as targets at 'drop' eventListener
+                    // creating landing Towers, as targets for 'drop' eventListener
                     const landingTower = createComponent('div', field, ['tower-drop-hint'], `tdh-${i}`);
                     landingTower.style.transform = aliasTranslate(i, 0);
                     // creating landing Disks projection
                     const landingZone = createComponent('div', field, ['hint-disk', `disk-${w}`], `h-${i}`);
                     landingZone.style.transform = aliasTranslate(i, maxDisk - tower.length);
-                    // Event Listeners for landing Towers
-                    landingTower.addEventListener('dragenter', (event) => {
+                    // landingTower.addEventListener('dragenter', (event) => {
+                    //     document.getElementById(`h-${event.target.id.slice(-1)}`).classList.add('highlight');
+                    // });
+                    // landingTower.addEventListener('dragleave', (event) => {
+                    //     document.getElementById(`h-${event.target.id.slice(-1)}`).classList.remove('highlight');
+                    // });
+                    // landingTower.addEventListener('dragover', (event) => {
+                    //     event.preventDefault();
+                    // });
+                } else if (i == x) { // hint disk at Source Tower
+                    const landingZone = createComponent('div', field, ['hint-disk', `disk-${w}`, 'src-disk', 'disk'], `h-${i}`);
+                    landingZone.style.transform = aliasTranslate(i, maxDisk - tower.length + 1);
+                    const landingTower = createComponent('div', field, ['tower-drop-hint'], `tdh-${i}`);
+                    landingTower.style.transform = aliasTranslate(i, 0);
+                };
+                // Event Listeners for landing Towers
+                const landingT = [...document.querySelectorAll('.tower-drop-hint')]
+                landingT.forEach(lt => {
+                    lt.addEventListener('dragenter', (event) => {
                         document.getElementById(`h-${event.target.id.slice(-1)}`).classList.add('highlight');
                     });
-                    landingTower.addEventListener('dragleave', (event) => {
+                    lt.addEventListener('dragleave', (event) => {
                         document.getElementById(`h-${event.target.id.slice(-1)}`).classList.remove('highlight');
                     });
-                    landingTower.addEventListener('dragover', (event) => {
+                    lt.addEventListener('dragover', (event) => {
                         event.preventDefault();
                     });
-                };
+                });
             });
         };
     });
+
     // remove dragging class from active Disk and landing Towers & Zones (Disks)
     element.addEventListener('dragend', (event) => {
         event.target.classList.remove('dragging'); 
@@ -97,21 +130,33 @@ function addDragListeners(element) {
         const tSrc = GameState.activeDisk.pos.x;
         const tTgt = 1 * event.target.id.slice(-1);
         const landingZone = document.getElementById(`h-${tTgt}`);
-        GameState.towers[tSrc].pop();
-        // disk at Target tower should become NOT draggable
-        const notDrg = Math.min(...GameState.towers[tTgt]);
-        if (notDrg < maxDisk + 1)document.getElementById(`d-${notDrg}`).setAttribute('draggable', false);
-        GameState.towers[tTgt].push(GameState.activeDisk.weight);
-        GameState.history.push([tSrc, tTgt]);
-        // disk at Source tower should become YES draggable
-        const yesDrg = Math.min(...GameState.towers[tSrc]);
-        if (yesDrg < maxDisk + 1) document.getElementById(`d-${yesDrg}`).setAttribute('draggable', true);
-        // actually reposition active Disk to the new tower
-        GameState.activeDisk.element.style.transform = landingZone.style.transform;
-        showMoveCnt();
+        if (!landingZone)
+            landingZone = document.getElementById(`h-${tSrc}`);
+        else if (tTgt !== tSrc) {
+            GameState.towers[tSrc].pop();
+            // disk at Target tower should become NOT draggable
+            const notDrg = Math.min(...GameState.towers[tTgt]);
+            if (notDrg < maxDisk + 1)document.getElementById(`d-${notDrg}`).setAttribute('draggable', false);
+            GameState.towers[tTgt].push(GameState.activeDisk.weight);
+            GameState.history.push([tSrc, tTgt]);
+            // disk at Source tower should become YES draggable
+            const yesDrg = Math.min(...GameState.towers[tSrc]);
+            if (yesDrg < maxDisk + 1) document.getElementById(`d-${yesDrg}`).setAttribute('draggable', true);
+            showMoveCnt();
+        }
+        // actually reposition active Disk
+        const f = { w : field.getBoundingClientRect().width, h : field.getBoundingClientRect().height }
+        let posX = Math.round(( 6 * (event.pageX) / f.w - 1) / 2);
+        let posY = Math.round(( 72 * (event.pageY) / f.h - 18) / 8);
+        // teleport disk to cursor location
+        GameState.activeDisk.element.style.transform = aliasTranslate(posX, posY);
+        // drop animation
+        sleep(0)
+            .then(() => transformElementSlow(landingZone.style.transform, GameState.activeDisk.element));
     });
+}
 
-
+function addTouchListeners(element) {
     element.addEventListener('touchstart', (event) => {
         event.preventDefault();
         if (event.target.draggable) {
@@ -120,7 +165,6 @@ function addDragListeners(element) {
             const f = { w : field.getBoundingClientRect().width, h : field.getBoundingClientRect().height }
             let posX = Math.round(100000*( 6 * (target.x + target.width/2) / f.w - 1) / 2) / 100000;
             let posY = Math.round(100000*( 72 * (target.y + target.height/2) / f.h - 18) / 8) / 100000;
-    log(posX, posY);
             if (event.target.draggable === true) {
                 event.target.style.transform = aliasTranslate(posX, posY);
             }
@@ -135,10 +179,10 @@ function addDragListeners(element) {
                 GameState.towers.forEach((tower, i) => {
                     // check for legal landing Zones - if each of two other towers has bigger disks at the top 
                     const maxW = (tower.length > 0) ? tower[tower.length-1] : maxDisk+100;
-                    if (i !== x && w < maxW) {
+                    if (i !== x && w < maxW) { // hint disk/disks at legal Target Towers
                         const landingZone = createComponent('div', field, ['hint-disk', `disk-${w}`], `h-${i}`);
                         landingZone.style.transform = aliasTranslate(i, maxDisk - tower.length);
-                    } else if (i == x) {
+                    } else if (i == x) { // hint disk at Source Tower
                         const landingZone = createComponent('div', field, ['hint-disk', `disk-${w}`, 'src-disk', 'disk'], `h-${i}`);
                         landingZone.style.transform = aliasTranslate(i, maxDisk - tower.length + 1);
                     }
@@ -154,12 +198,9 @@ function addDragListeners(element) {
             const f = { w : field.getBoundingClientRect().width, h : field.getBoundingClientRect().height }
             let posX = Math.round(100000*( 6 * (touch.pageX) / f.w - 1) / 2) / 100000;
             let posY = Math.round(100000*( 72 * (touch.pageY) / f.h - 18) / 8) / 100000;
-            log(posX, posY);
             event.target.style.transform = aliasTranslate(posX, posY);
-
-            // Drag-over event model
+            // Drag-over event
             [...document.querySelectorAll('.hint-disk')].forEach(hd => {
-                // log(hd.id.slice(-1))
                 if (Math.round(posX) == hd.id.slice(-1)) {
                     hd.classList.add('highlight');
                 } else {
@@ -169,21 +210,19 @@ function addDragListeners(element) {
         }
     });
 
-
     element.addEventListener('touchend', (event) => {
         if (event.target.draggable) {
             event.preventDefault();
             const touch = event.changedTouches[0];
             const f = { w : field.getBoundingClientRect().width, h : field.getBoundingClientRect().height }
-            const posX = Math.round(100000*( 6 * (touch.pageX) / f.w - 1) / 2) / 100000;
-            const posY = Math.round(100000*( 72 * (touch.pageY) / f.h - 18) / 8) / 100000;
+            const posX = Math.round(( 6 * (touch.pageX) / f.w - 1) / 2);
+            // const posY = Math.round(( 72 * (touch.pageY) / f.h - 18) / 8);
             const tSrc = GameState.activeDisk.pos.x;
             const tTgt = Math.round(posX);
             let landingZone = document.getElementById(`h-${tTgt}`);
-            log(posX,posY);
-            if (!landingZone) {
+            if (!landingZone)
                 landingZone = document.getElementById(`h-${tSrc}`);
-            } else {
+            else if (tTgt !== tSrc) {
                 GameState.towers[tSrc].pop();
                 // disk at Target tower should become NOT draggable
                 const notDrg = Math.min(...GameState.towers[tTgt]);
@@ -195,14 +234,13 @@ function addDragListeners(element) {
                 if (yesDrg < maxDisk + 1) document.getElementById(`d-${yesDrg}`).setAttribute('draggable', true);
                 showMoveCnt();
             }          
-            // actually reposition active Disk to the new tower
-            event.target.style.transform = landingZone.style.transform;
-            [...document.querySelectorAll('.hint-disk')].forEach(el => field.removeChild(el));    
-        }
+            // actually reposition active Disk to the Target tower
+            transformElementSlow(landingZone.style.transform, event.target);
+            // clear all hint disks from the field
+            [...document.querySelectorAll('.hint-disk')].forEach(el => field.removeChild(el));
+        };
     });
-
-
-}
+};
 
 // Repositioning Element via CSS-animation
 function animateElementMove(x0, y0, x6, y6) {
@@ -235,8 +273,6 @@ function animateOneMove([tSrc, tTgt]) {
     GameState.towers[tSrc].pop();
     GameState.towers[tTgt].push(GameState.activeDisk.weight);
     animateElementMove(x0, y0, x6, y6);
-    // log(GameState.activeDisk)
-    // GameState.activeDisk.pos = {x : x6, y : y6}; ????? unnecessary
 }
 
 // move all disks simultaneously to their positions at round start
@@ -331,10 +367,11 @@ function restart(rnd = 'rnd') {
     // update new disks amount
     GameState.numDisk = 1 * document.getElementById('dsp-disk-num').textContent;
     for (let weight = maxDisk; weight > maxDisk - 8; weight--) {
-        const el = document.getElementById(`d-${weight}`)
+        let el = document.getElementById(`d-${weight}`)
         // add disks if new numDisk is bigger than previous
         if (weight > maxDisk - GameState.numDisk && !el) {
-            createComponent('div', field, ['disk', `disk-${weight}`], `d-${weight}`, `${weight}` );
+            el = createComponent('div', field, ['disk', `disk-${weight}`], `d-${weight}`, `${weight}` );
+            addTouchListeners(el);
             GameState.towers[0].push(weight);
         // else remove redundant disks from previous round
         } else if (weight <= maxDisk - GameState.numDisk && el) { 

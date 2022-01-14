@@ -44,6 +44,7 @@ div {
 
 .cont-bg {
     background-image: url("../img/tower-0.png");
+    background-color: var(--bgd-color);
     opacity: 1;
     background-position: top 25% center;
     background-repeat: no-repeat;
@@ -53,7 +54,8 @@ div {
     position: absolute;
     top: 0; bottom: 0;
     z-index: 100;
-    transition: 1s;
+    transition: .75s;
+    transition-delay: .25s;
 }
 /* hiding Starting Cover Image */
 .start { opacity: 0; z-index: -1; }
